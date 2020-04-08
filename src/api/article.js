@@ -1,8 +1,41 @@
 import request from '@/utils/request'
+import tmpRequest from '@/utils/test-request'
+
+export function tmpFetchList(query) {
+  return tmpRequest({
+    url: '/api/v1/SysUser/',
+    method: 'get',
+    params: query
+  })
+}
+
+export function tmpCreateArticle(data) {
+  return tmpRequest({
+    url: '/api/v1/SysUser/',
+    method: 'post',
+    data
+  })
+}
+
+export function tmpDeleteArticle(id) {
+  return tmpRequest({
+    url: `/api/v1/SysUser/${id}`,
+    method: 'delete'
+  })
+}
+
+export function tmpUpdateArticle(id, data) {
+  return tmpRequest({
+    url: `/api/v1/SysUser/${id}`,
+    method: 'put',
+    data
+  })
+}
 
 export function fetchList(query) {
   return request({
     url: '/vue-element-admin/article/list',
+    // url: '/api/v1/SysUser/',
     method: 'get',
     params: query
   })

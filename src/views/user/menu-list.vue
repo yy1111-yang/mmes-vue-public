@@ -1,73 +1,54 @@
 <template>
   <div class="app-container">
-    <el-button type="primary" @click="handleAddRole">New Role</el-button>
-
-    <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
-      <el-table-column align="center" label="Role Key" width="220">
-        <template slot-scope="scope">
-          {{ scope.row.key }}
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="Role Name" width="220">
-        <template slot-scope="scope">
-          {{ scope.row.name }}
-        </template>
-      </el-table-column>
-      <el-table-column align="header-center" label="Description">
-        <template slot-scope="scope">
-          {{ scope.row.description }}
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="Operations">
-        <template slot-scope="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Role':'New Role'">
-      <el-form :model="role" label-width="80px" label-position="left">
-        <el-form-item label="Name">
-          <el-input v-model="role.name" placeholder="Role Name" />
-        </el-form-item>
-        <el-form-item label="Desc">
-          <el-input
-            v-model="role.description"
-            :autosize="{ minRows: 2, maxRows: 4}"
-            type="textarea"
-            placeholder="Role Description"
-          />
-        </el-form-item>
-        <el-form-item label="Menus">
-          <el-tree
-            ref="tree"
-            :check-strictly="checkStrictly"
-            :data="routesData"
-            :props="defaultProps"
-            show-checkbox
-            node-key="path"
-            class="permission-tree"
-          />
-        </el-form-item>
-      </el-form>
-      <div style="text-align:right;">
-        <el-button type="danger" @click="dialogVisible=false">Cancel</el-button>
-        <el-button type="primary" @click="confirmRole">Confirm</el-button>
-      </div>
-    </el-dialog>
+    <div class="">
+      <el-button type="primary" @click="handleAddRole">New Role</el-button>
+      <el-row :gutter="8">
+        <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
+          <el-form :model="role" label-width="80px" label-position="left">
+            <el-form-item label="Name">
+              <el-input v-model="role.roleName" placeholder="Role Name" />
+            </el-form-item>
+            <el-form-item label="Desc">
+              <el-input
+                v-model="role.roleDesc"
+                :autosize="{ minRows: 2, maxRows: 4}"
+                type="textarea"
+                placeholder="Role Description"
+              />
+            </el-form-item>
+            <el-form-item label="Menus">
+              <el-tree
+                ref="tree"
+                :check-strictly="checkStrictly"
+                :data="routesData"
+                :props="defaultProps"
+                node-key="path"
+                class="permission-tree"
+              />
+            </el-form-item>
+          </el-form>
+          <div style="text-align:right;">
+            <el-button type="danger" @click="dialogVisible=false">Cancel</el-button>
+            <el-button type="primary" @click="confirmRole">Confirm</el-button>
+          </div>
+        </el-col>
+        <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 12}" :xl="{span: 12}" style="margin-bottom:30px;">
+          2
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
 <script>
 import path from 'path'
 import { deepClone } from '@/utils'
-import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
+import { deleteRole } from '@/api/role'
+import { getRoutes } from '@/api/menu'
 
 const defaultRole = {
-  key: '',
-  name: '',
-  description: '',
+  roleName: '',
+  roleDesc: '',
   routes: []
 }
 
@@ -94,46 +75,46 @@ export default {
   created() {
     // Mock: get all routes and roles list from server
     this.getRoutes()
-    this.getRoles()
   },
   methods: {
     async getRoutes() {
       const res = await getRoutes()
-      this.serviceRoutes = res.data
       console.log(res.data)
-      this.routes = this.generateRoutes(res.data)
+      this.serviceRoutesserviceRoutes = res.data.items
+      // this.serviceRoutesserviceRoutes = res.data
+      console.log(0)
+      this.routes = this.generateRoutes(res.data.items)
+      // this.routes = this.generateRoutes(res.data)
+      console.log('end')
     },
-    async getRoles() {
-      const res = await getRoles()
-      this.rolesList = res.data
-    },
-
     // Reshape the routes structure so that it looks the same as the sidebar
     generateRoutes(routes, basePath = '/') {
       const res = []
-
       for (let route of routes) {
         // skip some route
-        if (route.hidden) { continue }
-
+        if (route.displayYn === 'N') { continue }
+        console.log(1)
         const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-
+        console.log(2)
         if (route.children && onlyOneShowingChild && !route.alwaysShow) {
           route = onlyOneShowingChild
         }
-
+        console.log(3)
         const data = {
           path: path.resolve(basePath, route.path),
-          title: route.meta && route.meta.title
-
+          // title: route.meta && route.meta.title
+          title: route.menuName
         }
+        console.log(4)
 
         // recursive child routes
         if (route.children) {
           data.children = this.generateRoutes(route.children, data.path)
         }
+        console.log(5)
         res.push(data)
       }
+      console.log(6)
       return res
     },
     generateArr(routes) {
@@ -185,7 +166,7 @@ export default {
         })
         .catch(err => { console.error(err) })
     },
-    generateTree(routes, basePath = '/', checkedKeys) {
+    generateTree(routes, basePath = '/user/', checkedKeys) {
       const res = []
 
       for (const route of routes) {
@@ -203,34 +184,17 @@ export default {
       return res
     },
     async confirmRole() {
-      const isEdit = this.dialogType === 'edit'
-
       const checkedKeys = this.$refs.tree.getCheckedKeys()
       this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
 
-      if (isEdit) {
-        await updateRole(this.role.key, this.role)
-        for (let index = 0; index < this.rolesList.length; index++) {
-          if (this.rolesList[index].key === this.role.key) {
-            this.rolesList.splice(index, 1, Object.assign({}, this.role))
-            break
-          }
-        }
-      } else {
-        const { data } = await addRole(this.role)
-        this.role.key = data.key
-        this.rolesList.push(this.role)
-      }
-
-      const { description, key, name } = this.role
+      const { roleDesc, roleName } = this.role
       this.dialogVisible = false
       this.$notify({
         title: 'Success',
         dangerouslyUseHTMLString: true,
         message: `
-            <div>Role Key: ${key}</div>
-            <div>Role Name: ${name}</div>
-            <div>Description: ${description}</div>
+            <div>Role Name: ${roleName}</div>
+            <div>Description: ${roleDesc}</div>
           `,
         type: 'success'
       })
@@ -266,6 +230,8 @@ export default {
   }
   .permission-tree {
     margin-bottom: 30px;
+    height: 300px;
+    overflow-y: scroll;
   }
 }
 </style>
