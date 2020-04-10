@@ -169,7 +169,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      tmpFetchList(null).then(response => {
+      tmpFetchList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
 
