@@ -2,7 +2,7 @@ import request from '@/utils/test-request'
 
 export function getRoutes() {
   return request({
-    url: '/api/v1/SysMenu/',
+    url: '/api/v1/SysMenu/tree',
     method: 'get'
   })
 }

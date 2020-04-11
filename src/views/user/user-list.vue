@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.userId" placeholder="ID" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <!-- <el-input v-model="listQuery.userId" placeholder="ID" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" /> -->
       <el-input v-model="listQuery.userName" placeholder="이름" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-input v-model="listQuery.email" placeholder="이메일" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.statusId" placeholder="status" clearable style="width: 90px" class="filter-item">
@@ -104,7 +104,7 @@
 </template>
 
 <script>
-import { tmpFetchList, tmpCreateArticle, tmpUpdateArticle, tmpDeleteArticle } from '@/api/article'
+import { fetchList, createArticle, updateArticle, deleteArticle } from '@/api/tmp-article'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
@@ -131,7 +131,6 @@ export default {
       listQuery: {
         page: 1,
         limit: 20,
-        userId: undefined,
         userName: undefined,
         email: undefined,
         statusId: undefined,
@@ -169,7 +168,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      tmpFetchList(this.listQuery).then(response => {
+      fetchList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
 
@@ -218,7 +217,7 @@ export default {
     createData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          tmpCreateArticle(this.temp).then(() => {
+          createArticle(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -241,9 +240,9 @@ export default {
       })
     },
     updateData() {
-      tmpUpdateArticle(this.temp.email, this.temp).then(() => {
+      updateArticle(this.temp.userId, this.temp).then(() => {
         for (let index = 0; index < this.list.length; index++) {
-          if (this.list[index].email === this.temp.email) {
+          if (this.list[index].userId === this.temp.userId) {
             this.list.splice(index, 1, Object.assign({}, this.temp))
             break
           }
@@ -264,7 +263,7 @@ export default {
         type: 'warning'
       })
         .then(async() => {
-          await tmpDeleteArticle(row.email)
+          await deleteArticle(row.userId)
           this.list.splice(index, 1)
           this.$message({
             type: 'success',

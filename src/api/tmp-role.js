@@ -14,6 +14,13 @@ export function getRoles() {
   })
 }
 
+export function getRoleUsers() {
+  return request({
+    url: '/api/v1/SysRole/users',
+    method: 'get'
+  })
+}
+
 export function addRole(data) {
   return request({
     url: '/api/v1/SysRole/',
@@ -24,7 +31,7 @@ export function addRole(data) {
 
 export function updateRole(id, data) {
   return request({
-    url: `/vue-element-admin/role/${id}`,
+    url: `/api/v1/SysRole/${id}`,
     method: 'put',
     data
   })
@@ -32,7 +39,7 @@ export function updateRole(id, data) {
 
 export function deleteRole(id) {
   return request({
-    url: `/vue-element-admin/role/${id}`,
+    url: `/api/v1/SysRole/${id}`,
     method: 'delete'
   })
 }

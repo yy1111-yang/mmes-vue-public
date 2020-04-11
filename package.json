@@ -5,7 +5,8 @@
   "author": "Yang Yong",
   "license": "MIT",
   "scripts": {
-    "dev": "vue-cli-service serve --host 0.0.0.0 --disableHostCheck true",
+    "dev": "vue-cli-service serve",
+    "dev0000": "vue-cli-service serve --host 0.0.0.0 --disableHostCheck true",
     "test": "webpack-dev-server --inline --progress --host 0.0.0.0 --disableHostCheck true --config build/webpack.dev.conf.js",
     "build:prod": "vue-cli-service build",
     "build:stage": "vue-cli-service build --mode staging",

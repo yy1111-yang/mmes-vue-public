@@ -4,14 +4,19 @@
     <el-row :gutter="8">
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
         <el-table :data="rolesList" style="width: 100%;margin: 10px" border>
+          <el-table-column align="center" label="Role Id" width="150" v-if="false">
+            <template slot-scope="scope">
+              {{ scope.row.roleId }}
+            </template>
+          </el-table-column>
           <el-table-column align="center" label="Role Name" width="150">
             <template slot-scope="scope">
-              {{ scope.row.roleName }}
+              <span class="link-type" @click="getRoleUsers(scope.row)">{{ scope.row.roleName }}</span>
             </template>
           </el-table-column>
           <el-table-column align="header-center" label="Description" width="150">
             <template slot-scope="scope">
-              {{ scope.row.roleDesc }}
+              {{ scope.row.description }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="useYn" width="100">
@@ -28,7 +33,7 @@
         </el-table>
       </el-col>
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
-        <el-table :data="userRoleList" style="width: 100%;margin: 10px" border>
+        <el-table :data="roleUserList" style="width: 100%;margin: 10px" border>
           <el-table-column align="center" label="ID" width="220">
             <template slot-scope="scope">
               {{ scope.row.userId }}
@@ -50,7 +55,7 @@
         </el-form-item>
         <el-form-item label="Desc">
           <el-input
-            v-model="role.roleDesc"
+            v-model="role.description"
             :autosize="{ minRows: 2, maxRows: 4}"
             type="textarea"
             placeholder="Role Description"
@@ -79,12 +84,13 @@
 
 import path from 'path'
 import { deepClone } from '@/utils'
-import { getRoutes, deleteRole, updateRole } from '@/api/role'
-import { getRoles, addRole } from '@/api/tmp-role'
+import { getRoutes } from '@/api/role'
+import { getRoles, addRole, deleteRole, updateRole, getRoleUsers } from '@/api/tmp-role'
 
 const defaultRole = {
+  roleId: '',
   roleName: '',
-  roleDesc: '',
+  description: '',
   routes: []
 }
 
@@ -94,6 +100,7 @@ export default {
       role: Object.assign({}, defaultRole),
       routes: [],
       rolesList: [],
+      roleUserList:[],
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: false,
@@ -124,6 +131,10 @@ export default {
       this.rolesList = res.data.items
     },
 
+    getRoleUsers(row) { 
+      const res = getRoleUsers(row.roleId)
+      this.roleUserList = res.data.items
+    },
     // Reshape the routes structure so that it looks the same as the sidebar
     generateRoutes(routes, basePath = '/') {
       const res = []
@@ -192,7 +203,7 @@ export default {
         type: 'warning'
       })
         .then(async() => {
-          await deleteRole(row.key)
+          await deleteRole(row.roleId)
           this.rolesList.splice($index, 1)
           this.$message({
             type: 'success',
@@ -225,29 +236,28 @@ export default {
       this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
 
       if (isEdit) {
-        await updateRole(this.role.key, this.role)
+        console.log(this.role)
+        await updateRole(this.role.roleId, this.role)
         for (let index = 0; index < this.rolesList.length; index++) {
-          if (this.rolesList[index].key === this.role.key) {
+          if (this.rolesList[index].roleId === this.role.roleId) {
             this.rolesList.splice(index, 1, Object.assign({}, this.role))
             break
           }
         }
       } else {
         this.role.useYn = 'Y'
-        // const { data } = await addRole(this.role)
         await addRole(this.role)
-        // this.role.roleName = data.roleName
         this.rolesList.push(this.role)
       }
 
-      const { roleDesc, roleName } = this.role
+      const { description, roleName } = this.role
       this.dialogVisible = false
       this.$notify({
         title: 'Success',
         dangerouslyUseHTMLString: true,
         message: `
             <div>Role Name: ${roleName}</div>
-            <div>Description: ${roleDesc}</div>
+            <div>Description: ${description}</div>
           `,
         type: 'success'
       })

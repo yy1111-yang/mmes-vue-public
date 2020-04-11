@@ -1,21 +1,10 @@
 <template>
   <div class="app-container">
     <div class="">
-      <el-button type="primary" @click="handleAddRole">New Role</el-button>
+      <el-button type="primary" @click="handleAddMenu">New Menu</el-button>
       <el-row :gutter="8">
         <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
           <el-form :model="role" label-width="80px" label-position="left">
-            <el-form-item label="Name">
-              <el-input v-model="role.roleName" placeholder="Role Name" />
-            </el-form-item>
-            <el-form-item label="Desc">
-              <el-input
-                v-model="role.roleDesc"
-                :autosize="{ minRows: 2, maxRows: 4}"
-                type="textarea"
-                placeholder="Role Description"
-              />
-            </el-form-item>
             <el-form-item label="Menus">
               <el-tree
                 ref="tree"
@@ -36,6 +25,32 @@
           2
         </el-col>
       </el-row>
+
+      <el-dialog title="create menu" :visible.sync="dialogVisible">
+      <el-form ref="dataForm" :rules="rules" :model="tempMenu" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="Parent Key" prop="menuParentId">
+          <el-input v-model="tempMenu.menuParentId" />
+        </el-form-item>
+        <el-form-item label="Menu Key" prop="menuId">
+          <el-input v-model="tempMenu.menuId" />
+        </el-form-item>
+        <el-form-item label="Menu Name" prop="messageDefault">
+          <el-input v-model="tempMenu.messageDefault" />
+        </el-form-item>
+        <el-form-item label="URI" prop="url">
+          <el-input v-model="tempMenu.url"  />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">
+          Cancel
+        </el-button>
+        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
+          Confirm
+        </el-button>
+      </div>
+    </el-dialog>
+
     </div>
   </div>
 </template>
@@ -44,11 +59,9 @@
 import path from 'path'
 import { deepClone } from '@/utils'
 import { deleteRole } from '@/api/role'
-import { getRoutes } from '@/api/menu'
+import { getRoutes, createSingleMenu } from '@/api/menu'
 
 const defaultRole = {
-  roleName: '',
-  roleDesc: '',
   routes: []
 }
 
@@ -64,7 +77,18 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'title'
+      },
+      tempMenu: { 
+      },
+      disabled: false,
+      rules: {
+        // userId: [{ required: true, message: 'ID is required', trigger: 'change' }],
+        // userName: [{ required: true, message: 'name is required', trigger: 'change' }],
+        // email: [{ required: true, message: 'email is required', trigger: 'blur' }],
+        // authCode: [{ required: true, message: 'password is required', trigger: 'blur' }],
+        // statusId: [{ required: true, message: 'status is required', trigger: 'blur' }]
       }
+
     }
   },
   computed: {
@@ -79,13 +103,8 @@ export default {
   methods: {
     async getRoutes() {
       const res = await getRoutes()
-      console.log(res.data)
-      this.serviceRoutesserviceRoutes = res.data.items
-      // this.serviceRoutesserviceRoutes = res.data
-      console.log(0)
-      this.routes = this.generateRoutes(res.data.items)
-      // this.routes = this.generateRoutes(res.data)
-      console.log('end')
+      this.serviceRoutesserviceRoutes = res.data
+      this.routes = this.generateRoutes(res.data)
     },
     // Reshape the routes structure so that it looks the same as the sidebar
     generateRoutes(routes, basePath = '/') {
@@ -93,28 +112,25 @@ export default {
       for (let route of routes) {
         // skip some route
         if (route.displayYn === 'N') { continue }
-        console.log(1)
+        
         const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-        console.log(2)
+        
         if (route.children && onlyOneShowingChild && !route.alwaysShow) {
           route = onlyOneShowingChild
         }
-        console.log(3)
+        
         const data = {
-          path: path.resolve(basePath, route.path),
-          // title: route.meta && route.meta.title
-          title: route.menuName
+          path: route.contents.url,
+          title: route.treeInfo.name
         }
-        console.log(4)
-
+        
         // recursive child routes
         if (route.children) {
           data.children = this.generateRoutes(route.children, data.path)
         }
-        console.log(5)
+        
         res.push(data)
       }
-      console.log(6)
       return res
     },
     generateArr(routes) {
@@ -130,13 +146,17 @@ export default {
       })
       return data
     },
-    handleAddRole() {
+    handleAddMenu() {
       this.role = Object.assign({}, defaultRole)
       if (this.$refs.tree) {
         this.$refs.tree.setCheckedNodes([])
       }
       this.dialogType = 'new'
       this.dialogVisible = true
+    },
+    async createSingleMenu() { 
+      await createSingleMenu()
+
     },
     handleEdit(scope) {
       this.dialogType = 'edit'
@@ -166,7 +186,7 @@ export default {
         })
         .catch(err => { console.error(err) })
     },
-    generateTree(routes, basePath = '/user/', checkedKeys) {
+    generateTree(routes, basePath = '/', checkedKeys) {
       const res = []
 
       for (const route of routes) {
@@ -187,17 +207,7 @@ export default {
       const checkedKeys = this.$refs.tree.getCheckedKeys()
       this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
 
-      const { roleDesc, roleName } = this.role
-      this.dialogVisible = false
-      this.$notify({
-        title: 'Success',
-        dangerouslyUseHTMLString: true,
-        message: `
-            <div>Role Name: ${roleName}</div>
-            <div>Description: ${roleDesc}</div>
-          `,
-        type: 'success'
-      })
+      
     },
     // reference: src/view/layout/components/Sidebar/SidebarItem.vue
     onlyOneShowingChild(children = [], parent) {
@@ -207,13 +217,13 @@ export default {
       // When there is only one child route, the child route is displayed by default
       if (showingChildren.length === 1) {
         onlyOneChild = showingChildren[0]
-        onlyOneChild.path = path.resolve(parent.path, onlyOneChild.path)
+        onlyOneChild.url = onlyOneChild.contents.url
         return onlyOneChild
       }
 
       // Show parent if there are no child route to display
       if (showingChildren.length === 0) {
-        onlyOneChild = { ... parent, path: '', noShowingChildren: true }
+        onlyOneChild = { ... parent, url: '', noShowingChildren: true }
         return onlyOneChild
       }
 
