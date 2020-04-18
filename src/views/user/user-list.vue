@@ -66,7 +66,7 @@
 import { getUserList, deleteuser } from '@/api/tmp-user'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-import userEditDialog from './user-edit-dialog'
+import userEditDialog from './dialog/user-edit-dialog'
 
 export default {
   name: 'UserList',

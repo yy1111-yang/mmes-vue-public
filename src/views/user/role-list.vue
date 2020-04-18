@@ -52,158 +52,60 @@
       </el-col>
     </el-row>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Role':'New Role'">
-      <el-form :model="role" label-width="80px" label-position="left">
-        <el-form-item label="Name">
-          <el-input v-model="role.roleName" placeholder="Role Name" />
-        </el-form-item>
-        <el-form-item label="Desc">
-          <el-input
-            v-model="role.description"
-            :autosize="{ minRows: 2, maxRows: 4}"
-            type="textarea"
-            placeholder="Role Description"
-          />
-        </el-form-item>
-        <el-form-item label="Menus">
-          <el-tree
-            ref="tree"
-            :check-strictly="checkStrictly"
-            :data="routesData"
-            :props="defaultProps"
-            show-checkbox
-            node-key="path"
-            class="permission-tree"
-          />
-        </el-form-item>
-      </el-form>
-      <div style="text-align:right;">
-        <el-button type="danger" @click="dialogVisible=false">Cancel</el-button>
-        <el-button type="primary" @click="confirmRole">Confirm</el-button>
-      </div>
-    </el-dialog>
+    <role-edit-dialog ref="roleEditDialog" @close="getRoles"/>
 
-    <user-list-transfer ref="userListTransfer" @close="userListTransferClose" @select="addApprovalUser"/>
+    <!-- <user-list-transfer ref="userListTransfer" @close="userListTransferClose" @select="addApprovalUser"/> -->
   </div>
 </template>
 <script>
 
-import path from 'path'
-import { deepClone } from '@/utils'
-import { getRoutes } from '@/api/role'
-import { getRoles, addRole, deleteRole, updateRole, getRoleUsers } from '@/api/tmp-role'
-import userListTransfer from './user-list-transfer'
-
-const defaultRole = {
-  roleId: '',
-  roleName: '',
-  description: '',
-  routes: []
-}
+import { getRoles, deleteRole, getRoleUsers } from '@/api/tmp-role'
+import userListTransfer from './dialog/user-list-transfer'
+import roleEditDialog from './dialog/role-edit-dialog'
 
 export default {
   name: 'roleList',
-  components: { userListTransfer },
+  components: { userListTransfer, roleEditDialog },
   data() {
     return {
-      role: Object.assign({}, defaultRole),
-      routes: [],
       rolesList: [],
-      roleUserList:[],
-      dialogVisible: false,
-      dialogType: 'new',
-      checkStrictly: false,
-      defaultProps: {
-        children: 'children',
-        label: 'title'
-      }
-    }
-  },
-  computed: {
-    routesData() {
-      return this.routes
+      roleUserList:[]
     }
   },
   created() {
     // Mock: get all routes and roles list from server
-    this.getRoutes()
     this.getRoles()
   },
   methods: {
-    async getRoutes() {
-      const res = await getRoutes()
-      this.serviceRoutes = res.data
-      this.routes = this.generateRoutes(res.data)
-    },
     async getRoles() {
       const res = await getRoles()
       this.rolesList = res.data.items
     },
-
     getRoleUsers(row) { 
       const res = getRoleUsers(row.roleId)
       this.roleUserList = res.data.items
     },
-    // Reshape the routes structure so that it looks the same as the sidebar
-    generateRoutes(routes, basePath = '/') {
-      const res = []
-
-      for (let route of routes) {
-        // skip some route
-        if (route.hidden) { continue }
-
-        const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-
-        if (route.children && onlyOneShowingChild && !route.alwaysShow) {
-          route = onlyOneShowingChild
-        }
-
-        const data = {
-          path: path.resolve(basePath, route.path),
-          title: route.meta && route.meta.title
-
-        }
-
-        // recursive child routes
-        if (route.children) {
-          data.children = this.generateRoutes(route.children, data.path)
-        }
-        res.push(data)
-      }
-      return res
-    },
-    generateArr(routes) {
-      let data = []
-      routes.forEach(route => {
-        data.push(route)
-        if (route.children) {
-          const temp = this.generateArr(route.children)
-          if (temp.length > 0) {
-            data = [...data, ...temp]
-          }
-        }
-      })
-      return data
-    },
     handleAddRole() {
-      this.role = Object.assign({}, defaultRole)
-      if (this.$refs.tree) {
-        this.$refs.tree.setCheckedNodes([])
-      }
-      this.dialogType = 'new'
-      this.dialogVisible = true
+      // this.role = Object.assign({}, defaultRole)
+      // if (this.$refs.tree) {
+      //   this.$refs.tree.setCheckedNodes([])
+      // }
+      // this.dialogType = 'new'
+      // this.dialogVisible = true
+      this.$refs['roleEditDialog'].open('create', {});
     },
     handleEdit(scope) {
-      this.dialogType = 'edit'
-      this.dialogVisible = true
-      this.checkStrictly = true
-      this.role = deepClone(scope.row)
-      this.$nextTick(() => {
-        const routes = this.generateRoutes(this.role.routes)
-        this.$refs.tree.setCheckedNodes(this.generateArr(routes))
-        // set checked state of a node not affects its father and child nodes
-        this.checkStrictly = false
-      })
+      this.$refs['roleEditDialog'].open('update', scope.row);
+      // this.dialogType = 'edit'
+      // this.dialogVisible = true
+      // this.checkStrictly = true
+      // this.role = deepClone(scope.row)
+      // this.$nextTick(() => {
+      //   const routes = this.generateRoutes(this.role.routes)
+      //   this.$refs.tree.setCheckedNodes(this.generateArr(routes))
+      //   // set checked state of a node not affects its father and child nodes
+      //   this.checkStrictly = false
+      // })
     },
     handleDelete({ $index, row }) {
       this.$confirm('Confirm to remove the role?', 'Warning', {
@@ -224,76 +126,6 @@ export default {
     handleAddUserByRole() { 
       // user 팝업
       this.$refs['userListTransfer'].open()
-    },
-    generateTree(routes, basePath = '/', checkedKeys) {
-      const res = []
-
-      for (const route of routes) {
-        const routePath = path.resolve(basePath, route.path)
-
-        // recursive child routes
-        if (route.children) {
-          route.children = this.generateTree(route.children, routePath, checkedKeys)
-        }
-
-        if (checkedKeys.includes(routePath) || (route.children && route.children.length >= 1)) {
-          res.push(route)
-        }
-      }
-      return res
-    },
-    async confirmRole() {
-      const isEdit = this.dialogType === 'edit'
-
-      const checkedKeys = this.$refs.tree.getCheckedKeys()
-      this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
-
-      if (isEdit) {
-        console.log(this.role)
-        await updateRole(this.role.roleId, this.role)
-        for (let index = 0; index < this.rolesList.length; index++) {
-          if (this.rolesList[index].roleId === this.role.roleId) {
-            this.rolesList.splice(index, 1, Object.assign({}, this.role))
-            break
-          }
-        }
-      } else {
-        this.role.useYn = 'Y'
-        await addRole(this.role)
-        this.rolesList.push(this.role)
-      }
-
-      const { description, roleName } = this.role
-      this.dialogVisible = false
-      this.$notify({
-        title: 'Success',
-        dangerouslyUseHTMLString: true,
-        message: `
-            <div>Role Name: ${roleName}</div>
-            <div>Description: ${description}</div>
-          `,
-        type: 'success'
-      })
-    },
-    // reference: src/view/layout/components/Sidebar/SidebarItem.vue
-    onlyOneShowingChild(children = [], parent) {
-      let onlyOneChild = null
-      const showingChildren = children.filter(item => !item.hidden)
-
-      // When there is only one child route, the child route is displayed by default
-      if (showingChildren.length === 1) {
-        onlyOneChild = showingChildren[0]
-        onlyOneChild.path = path.resolve(parent.path, onlyOneChild.path)
-        return onlyOneChild
-      }
-
-      // Show parent if there are no child route to display
-      if (showingChildren.length === 0) {
-        onlyOneChild = { ... parent, path: '', noShowingChildren: true }
-        return onlyOneChild
-      }
-
-      return false
     },
     userListTransferClose() { 
       alert('userListTransferClose')
