@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
+    <el-button type="primary" @click="handleAddRole">Add Role</el-button>
+    <el-button type="primary" @click="handleAddUserByRole">Add User</el-button>
     <el-row :gutter="8">
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
-        Role List
-        <el-button type="primary" @click="handleAddRole">Add Role</el-button>
         <el-table :data="rolesList" style="width: 100%;margin: 10px" border>
           <el-table-column align="center" label="Role Id" width="150" v-if="false">
             <template slot-scope="scope">
@@ -33,10 +33,9 @@
           </el-table-column>
         </el-table>
       </el-col>
+
       
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
-        Assigned User
-        <el-button type="primary" @click="handleAddUserByRole">Add User</el-button>
         <el-table :data="roleUserList" style="width: 100%;margin: 10px" border>
           <el-table-column align="center" label="ID" width="220">
             <template slot-scope="scope">
@@ -82,8 +81,6 @@
         <el-button type="primary" @click="confirmRole">Confirm</el-button>
       </div>
     </el-dialog>
-
-    <user-list-transfer ref="userListTransfer" @close="userListTransferClose" @select="addApprovalUser"/>
   </div>
 </template>
 <script>
@@ -92,7 +89,6 @@ import path from 'path'
 import { deepClone } from '@/utils'
 import { getRoutes } from '@/api/role'
 import { getRoles, addRole, deleteRole, updateRole, getRoleUsers } from '@/api/tmp-role'
-import userListTransfer from './user-list-transfer'
 
 const defaultRole = {
   roleId: '',
@@ -102,8 +98,6 @@ const defaultRole = {
 }
 
 export default {
-  name: 'roleList',
-  components: { userListTransfer },
   data() {
     return {
       role: Object.assign({}, defaultRole),
@@ -223,7 +217,7 @@ export default {
     },
     handleAddUserByRole() { 
       // user 팝업
-      this.$refs['userListTransfer'].open()
+      alert('user 검색 팝업')
     },
     generateTree(routes, basePath = '/', checkedKeys) {
       const res = []
@@ -294,12 +288,6 @@ export default {
       }
 
       return false
-    },
-    userListTransferClose() { 
-      alert('userListTransferClose')
-    },
-    addApprovalUser(param) { 
-      console.log(param)
     }
   }
 }

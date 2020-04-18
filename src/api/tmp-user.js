@@ -1,6 +1,6 @@
 import Request from '@/utils/test-request'
 
-export function fetchList(query) {
+export function getUserList(query) {
   return Request({
     url: '/api/v1/SysUser/',
     method: 'get',
@@ -8,7 +8,14 @@ export function fetchList(query) {
   })
 }
 
-export function createArticle(data) {
+export function userDetail(userId) {
+  return Request({
+    url: `/api/v1/SysUser/${userId}`,
+    method: 'get',
+  })
+}
+
+export function createUser(data) {
   return Request({
     url: '/api/v1/SysUser/',
     method: 'post',
@@ -16,14 +23,14 @@ export function createArticle(data) {
   })
 }
 
-export function deleteArticle(id) {
+export function deleteUser(id) {
   return Request({
     url: `/api/v1/SysUser/${id}`,
     method: 'delete'
   })
 }
 
-export function updateArticle(id, data) {
+export function updateUser(id, data) {
   return Request({
     url: `/api/v1/SysUser/${id}`,
     method: 'put',

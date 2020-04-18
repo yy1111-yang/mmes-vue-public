@@ -19,7 +19,8 @@ import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
 
-import locale from 'element-ui/lib/locale/lang/en'
+// import locale from 'element-ui/lib/locale/lang/en'
+import locale from 'element-ui/lib/locale/lang/ko'
 
 /**
  * If you don't want to use mock-server

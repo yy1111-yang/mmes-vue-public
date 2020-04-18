@@ -1,57 +1,56 @@
 <template>
   <div class="app-container">
-    <div class="">
-      <el-button type="primary" @click="handleAddMenu">New Menu</el-button>
-      <el-row :gutter="8">
-        <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
-          <el-form :model="role" label-width="80px" label-position="left">
-            <el-form-item label="Menus">
-              <el-tree
-                ref="tree"
-                :check-strictly="checkStrictly"
-                :data="routesData"
-                :props="defaultProps"
-                node-key="path"
-                class="permission-tree"
-              />
-            </el-form-item>
-          </el-form>
-          <div style="text-align:right;">
-            <el-button type="danger" @click="dialogVisible=false">Cancel</el-button>
-            <el-button type="primary" @click="confirmRole">Confirm</el-button>
-          </div>
-        </el-col>
-        <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 12}" :xl="{span: 12}" style="margin-bottom:30px;">
-          2
-        </el-col>
-      </el-row>
+    <el-button type="primary" @click="handleAddMenu">Add Menu</el-button>
+    <el-row :gutter="8">
+      <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
+        <el-form :model="role" label-width="80px" label-position="left">
+          <el-form-item label="Menus">
+            <el-tree
+              ref="tree"
+              :check-strictly="checkStrictly"
+              :data="routesData"
+              :props="defaultProps"
+              node-key="path"
+              class="permission-tree"
+              @node-click="handleNodeClick"
+            />
+          </el-form-item>
+        </el-form>
+        <div style="text-align:right;">
+          <el-button type="danger" @click="dialogVisible=false">Cancel</el-button>
+          <el-button type="primary" @click="confirmRole">Confirm</el-button>
+        </div>
+      </el-col>
+      <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 12}" :xl="{span: 12}" style="margin-bottom:30px;">
+        2
+      </el-col>
+    </el-row>
 
-      <el-dialog title="create menu" :visible.sync="dialogVisible">
-      <el-form ref="dataForm" :rules="rules" :model="tempMenu" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="Parent Key" prop="menuParentId">
-          <el-input v-model="tempMenu.menuParentId" />
-        </el-form-item>
-        <el-form-item label="Menu Key" prop="menuId">
-          <el-input v-model="tempMenu.menuId" />
-        </el-form-item>
-        <el-form-item label="Menu Name" prop="messageDefault">
-          <el-input v-model="tempMenu.messageDefault" />
-        </el-form-item>
-        <el-form-item label="URI" prop="url">
-          <el-input v-model="tempMenu.url"  />
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
-          Cancel
-        </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
-        </el-button>
-      </div>
-    </el-dialog>
-
+    <el-dialog title="create menu" :visible.sync="dialogVisible">
+    <el-form ref="dataForm" :rules="rules" :model="tempMenu" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+      <el-form-item label="Parent Id" prop="menuParentId">
+        <el-input v-model="tempMenu.menuParentId" />
+      </el-form-item>
+      <el-form-item label="Menu Id" prop="menuId">
+        <el-input v-model="tempMenu.menuId" />
+      </el-form-item>
+      <el-form-item label="Menu Name" prop="messageDefault">
+        <el-input v-model="tempMenu.messageDefault" />
+      </el-form-item>
+      <el-form-item label="URI" prop="url">
+        <el-input v-model="tempMenu.url"  />
+      </el-form-item>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="dialogVisible = false">
+        Cancel
+      </el-button>
+      <el-button type="primary" @click="dialogType==='new'?createMenu():updateData()">
+        Confirm
+      </el-button>
     </div>
+  </el-dialog>
+
   </div>
 </template>
 
@@ -79,8 +78,13 @@ export default {
         label: 'title'
       },
       tempMenu: { 
+        menuParentId: '',
+        menuId: '',
+        messageDefault: '',
+        url: ''
       },
       disabled: false,
+      addMenuObject: '',
       rules: {
         // userId: [{ required: true, message: 'ID is required', trigger: 'change' }],
         // userName: [{ required: true, message: 'name is required', trigger: 'change' }],
@@ -121,7 +125,9 @@ export default {
         
         const data = {
           path: route.contents.url,
-          title: route.treeInfo.name
+          title: route.treeInfo.name,
+          menuId: route.contents.menuId,
+          depth: route.treeInfo.depth
         }
         
         // recursive child routes
@@ -146,18 +152,54 @@ export default {
       })
       return data
     },
-    handleAddMenu() {
-      this.role = Object.assign({}, defaultRole)
-      if (this.$refs.tree) {
-        this.$refs.tree.setCheckedNodes([])
+    handleNodeClick(data) { 
+      this.addMenuObject = data;
+      if(this.addMenuObject.menuId === undefined) { 
+        this.addMenuObject.menuId = ''
       }
+    },
+    resetTemp() {
+      this.tempMenu = {
+        menuParentId: undefined,
+        menuId: '',
+        messageDefault: '',
+        url: ''        
+      }
+    },
+    handleAddMenu() {
+      this.resetTemp()
       this.dialogType = 'new'
       this.dialogVisible = true
+      console.log(this.addMenuObject)
+      this.tempMenu.menuParentId = this.addMenuObject.menuId
+      
+      this.$nextTick(() => {
+        this.$refs['dataForm'].clearValidate()
+      })
     },
-    async createSingleMenu() { 
-      await createSingleMenu()
+    createMenu() { 
+      this.$refs['dataForm'].validate((valid) => {
+        if (valid) {
+          this.tempMenu.messageGroup = 'test'
+          this.tempMenu.messageCode = 'test'
+          this.tempMenu.useYn = true
+          this.tempMenu.displayYn = true
+          this.tempMenu.depth = 1
+          this.tempMenu.seq = 1
+          createSingleMenu(this.tempMenu).then(() => {
+            // this.list.unshift(this.temp)
+            this.dialogVisible = false
+            this.$notify({
+              title: 'Success',
+              message: 'Created Successfully',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        }
+      })
+    },
 
-    },
     handleEdit(scope) {
       this.dialogType = 'edit'
       this.dialogVisible = true

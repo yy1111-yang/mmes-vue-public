@@ -83,7 +83,7 @@
       </div>
     </el-dialog>
 
-    <user-list-transfer ref="userListTransfer" @close="userListTransferClose" @select="addApprovalUser"/>
+    <user-list-dialog ref="userListDialog" @close="userListDiaglogClose" @select="addApprovalUser"/>
   </div>
 </template>
 <script>
@@ -92,7 +92,7 @@ import path from 'path'
 import { deepClone } from '@/utils'
 import { getRoutes } from '@/api/role'
 import { getRoles, addRole, deleteRole, updateRole, getRoleUsers } from '@/api/tmp-role'
-import userListTransfer from './user-list-transfer'
+import userListDialog from './user-list-dialog'
 
 const defaultRole = {
   roleId: '',
@@ -102,8 +102,8 @@ const defaultRole = {
 }
 
 export default {
-  name: 'roleList',
-  components: { userListTransfer },
+  name: 'rolelist',
+  components: { userListDialog },
   data() {
     return {
       role: Object.assign({}, defaultRole),
@@ -223,7 +223,7 @@ export default {
     },
     handleAddUserByRole() { 
       // user 팝업
-      this.$refs['userListTransfer'].open()
+      this.$refs['userListDialog'].open()
     },
     generateTree(routes, basePath = '/', checkedKeys) {
       const res = []
@@ -295,8 +295,8 @@ export default {
 
       return false
     },
-    userListTransferClose() { 
-      alert('userListTransferClose')
+    userListDiaglogClose() { 
+      alert('userListDiaglogClose')
     },
     addApprovalUser(param) { 
       console.log(param)

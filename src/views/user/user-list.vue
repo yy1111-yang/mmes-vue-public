@@ -1,7 +1,6 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <!-- <el-input v-model="listQuery.userId" placeholder="ID" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" /> -->
       <el-input v-model="listQuery.userName" placeholder="이름" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-input v-model="listQuery.email" placeholder="이메일" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.statusId" placeholder="status" clearable style="width: 90px" class="filter-item">
@@ -14,7 +13,6 @@
         Add
       </el-button>
     </div>
-
     <el-table
       :key="tableKey"
       v-loading="listLoading"
@@ -58,59 +56,21 @@
         </template>
       </el-table-column>
     </el-table>
-
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="80px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="ID" prop="userId">
-          <el-input v-model="temp.userId" :disabled="disabled" />
-        </el-form-item>
-        <el-form-item label="이름" prop="userName">
-          <el-input v-model="temp.userName" />
-        </el-form-item>
-        <el-form-item label="이메일" prop="email">
-          <el-input v-model="temp.email" />
-        </el-form-item>
-        <el-form-item label="비밀번호" prop="authCode">
-          <el-input v-model="temp.authCode" type="password" />
-        </el-form-item>
-        <el-form-item label="StatusId" prop="statusId">
-          <el-select v-model="temp.statusId" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
-          Cancel
-        </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
-        </el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-      <el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-        <el-table-column prop="key" label="Channel" />
-        <el-table-column prop="pv" label="Pv" />
-      </el-table>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogPvVisible = false">Confirm</el-button>
-      </span>
-    </el-dialog>
+    <user-edit-dialog ref="userEditDialog" @close="getList"/>
   </div>
 </template>
 
 <script>
-import { fetchList, createArticle, updateArticle, deleteArticle } from '@/api/tmp-article'
+import { getUserList, deleteuser } from '@/api/tmp-user'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import userEditDialog from './user-edit-dialog'
 
 export default {
   name: 'UserList',
-  components: { Pagination },
+  components: { Pagination, userEditDialog },
   directives: { waves },
   filters: {
     statusFilter(statusId) {
@@ -127,7 +87,6 @@ export default {
       list: null,
       total: 0,
       listLoading: true,
-      disabled: false,
       listQuery: {
         page: 1,
         limit: 20,
@@ -138,28 +97,6 @@ export default {
       },
       statusOptions: ['Y', 'N'],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      temp: {
-        userId: '',
-        userName: '',
-        email: '',
-        authCode: '',
-        statusId: 'Y'
-      },
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
-      rules: {
-        userId: [{ required: true, message: 'ID is required', trigger: 'change' }],
-        userName: [{ required: true, message: 'name is required', trigger: 'change' }],
-        email: [{ required: true, message: 'email is required', trigger: 'blur' }],
-        authCode: [{ required: true, message: 'password is required', trigger: 'blur' }],
-        statusId: [{ required: true, message: 'status is required', trigger: 'blur' }]
-      }
     }
   },
   created() {
@@ -168,10 +105,9 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
+      getUserList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
-
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
@@ -181,6 +117,28 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
+    },
+    handleCreate() {
+      this.$refs['userEditDialog'].open('create', {});
+    },
+    handleUpdate(row) {
+      this.$refs['userEditDialog'].open('update', row);
+    },
+    handleDelete(row, index) {
+      this.$confirm('Confirm to remove the user?', 'Warning', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      })
+        .then(async() => {
+          await deleteUser(row.userId)
+          this.getList()
+          this.$message({
+            type: 'success',
+            message: 'Delete succed!'
+          })
+        })
+        .catch(err => { console.error(err) })
     },
     sortChange(data) {
       const { prop, order } = data
@@ -195,82 +153,6 @@ export default {
         this.listQuery.sort = '-id'
       }
       this.handleFilter()
-    },
-    resetTemp() {
-      this.temp = {
-        userId: undefined,
-        userName: '',
-        email: '',
-        authcode: '',
-        statusId: '',
-        type: ''
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
-    handleUpdate(row) {
-      this.disabled = true
-      this.temp = Object.assign({}, row) // copy obj
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    updateData() {
-      updateArticle(this.temp.userId, this.temp).then(() => {
-        for (let index = 0; index < this.list.length; index++) {
-          if (this.list[index].userId === this.temp.userId) {
-            this.list.splice(index, 1, Object.assign({}, this.temp))
-            break
-          }
-        }
-        this.dialogFormVisible = false
-        this.$notify({
-          title: 'Success',
-          message: 'Updated Successfully',
-          type: 'success',
-          duration: 2000
-        })
-      })
-    },
-    handleDelete(row, index) {
-      this.$confirm('Confirm to remove the user?', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'warning'
-      })
-        .then(async() => {
-          await deleteArticle(row.userId)
-          this.list.splice(index, 1)
-          this.$message({
-            type: 'success',
-            message: 'Delete succed!'
-          })
-        })
-        .catch(err => { console.error(err) })
     },
     getSortClass: function(key) {
       const sort = this.listQuery.sort

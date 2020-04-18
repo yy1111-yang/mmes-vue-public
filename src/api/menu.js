@@ -21,3 +21,11 @@ export function deleteRole(id) {
     method: 'delete'
   })
 }
+
+export function createSingleMenu(data) {
+  return request({
+    url: '/api/v1/SysMenu/',
+    method: 'post',
+    data
+  })
+}
