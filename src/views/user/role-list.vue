@@ -86,26 +86,10 @@ export default {
       this.roleUserList = res.data.items
     },
     handleAddRole() {
-      // this.role = Object.assign({}, defaultRole)
-      // if (this.$refs.tree) {
-      //   this.$refs.tree.setCheckedNodes([])
-      // }
-      // this.dialogType = 'new'
-      // this.dialogVisible = true
       this.$refs['roleEditDialog'].open('create', {});
     },
     handleEdit(scope) {
       this.$refs['roleEditDialog'].open('update', scope.row);
-      // this.dialogType = 'edit'
-      // this.dialogVisible = true
-      // this.checkStrictly = true
-      // this.role = deepClone(scope.row)
-      // this.$nextTick(() => {
-      //   const routes = this.generateRoutes(this.role.routes)
-      //   this.$refs.tree.setCheckedNodes(this.generateArr(routes))
-      //   // set checked state of a node not affects its father and child nodes
-      //   this.checkStrictly = false
-      // })
     },
     handleDelete({ $index, row }) {
       this.$confirm('Confirm to remove the role?', 'Warning', {
