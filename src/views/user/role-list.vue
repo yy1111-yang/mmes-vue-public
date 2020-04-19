@@ -12,7 +12,7 @@
           </el-table-column>
           <el-table-column align="center" label="Role Name" width="150">
             <template slot-scope="scope">
-              <span class="link-type" @click="getRoleUsers(scope.row)">{{ scope.row.roleName }}</span>
+              <span class="link-type" @click="getUserListByRole(scope.row.roleId)">{{ scope.row.roleName }}</span>
             </template>
           </el-table-column>
           <el-table-column align="header-center" label="Description" width="150">
@@ -54,12 +54,12 @@
 
     <role-edit-dialog ref="roleEditDialog" @close="getRoles"/>
 
-    <!-- <user-list-transfer ref="userListTransfer" @close="userListTransferClose" @select="addApprovalUser"/> -->
+    <user-list-transfer ref="userListTransfer" @close="userListTransferClose" />
   </div>
 </template>
 <script>
 
-import { getRoles, deleteRole, getRoleUsers } from '@/api/tmp-role'
+import { getRoles, deleteRole, getRoleUsers, getUserByRole } from '@/api/tmp-role'
 import userListTransfer from './dialog/user-list-transfer'
 import roleEditDialog from './dialog/role-edit-dialog'
 
@@ -69,7 +69,8 @@ export default {
   data() {
     return {
       rolesList: [],
-      roleUserList:[]
+      roleUserList:[],
+      roleId: ''
     }
   },
   created() {
@@ -80,10 +81,6 @@ export default {
     async getRoles() {
       const res = await getRoles()
       this.rolesList = res.data.items
-    },
-    getRoleUsers(row) { 
-      const res = getRoleUsers(row.roleId)
-      this.roleUserList = res.data.items
     },
     handleAddRole() {
       this.$refs['roleEditDialog'].open('create', {});
@@ -107,16 +104,18 @@ export default {
         })
         .catch(err => { console.error(err) })
     },
+    async getUserListByRole(roleId) { 
+      this.roleId = roleId
+      const res = await getRoleUsers(roleId)
+      this.roleUserList = res.data.items
+    },
     handleAddUserByRole() { 
-      // user 팝업
-      this.$refs['userListTransfer'].open()
+      this.$refs['userListTransfer'].open(this.roleId)
     },
     userListTransferClose() { 
-      alert('userListTransferClose')
+      // 재조회
+      this.getUserListByRole(this.roleId)
     },
-    addApprovalUser(param) { 
-      console.log(param)
-    }
   }
 }
 </script>

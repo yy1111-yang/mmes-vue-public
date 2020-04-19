@@ -14,9 +14,9 @@ export function getRoles() {
   })
 }
 
-export function getRoleUsers() {
+export function getRoleUsers(roleId) {
   return request({
-    url: '/api/v1/SysRole/users',
+    url: `/api/v1/SysRole/${roleId}/user`,
     method: 'get'
   })
 }
@@ -29,17 +29,32 @@ export function addRole(data) {
   })
 }
 
-export function updateRole(id, data) {
+export function updateRole(roleId, data) {
   return request({
-    url: `/api/v1/SysRole/${id}`,
+    url: `/api/v1/SysRole/${roleId}`,
     method: 'put',
     data
   })
 }
 
-export function deleteRole(id) {
+export function deleteRole(roleId) {
   return request({
-    url: `/api/v1/SysRole/${id}`,
+    url: `/api/v1/SysRole/${roleId}`,
     method: 'delete'
+  })
+}
+
+export function addUserByRole(roleId, data) {
+  return request({
+    url: `/api/v1/SysRole/${roleId}/user`,
+    method: 'post',
+    data
+  })
+}
+
+export function getUserByRole(roleId) {
+  return request({
+    url: `/api/v1/SysRole/${roleId}/user`,
+    method: 'get'
   })
 }
