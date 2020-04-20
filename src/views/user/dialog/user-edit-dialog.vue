@@ -1,6 +1,6 @@
 <template>
-    <el-dialog :title="textMap[dialogStatus]" ref="modal" :visible.sync="userEditDialogVisible">
-      <el-form ref="paramDataForm" :rules="rules" :model="tempUser" label-position="left" label-width="80px" style="width: 400px; margin-left:50px;">
+    <el-dialog :title="textMap[dialogStatus]" ref="modal" :visible.sync="userEditDialogVisible" width="40%">
+      <el-form ref="paramDataForm" :rules="rules" :model="tempUser" label-position="left" label-width="80px" style="width: 80%; margin-left:50px;">
         <el-form-item label="ID" prop="userId">
           <el-input v-model="tempUser.userId" :disabled="disabled" />
         </el-form-item>
@@ -18,15 +18,15 @@
             <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
           </el-select>
         </el-form-item>
+        <el-form-item style="text-align:right">
+          <el-button icon="el-icon-close" @click="close()">
+            Cancel
+          </el-button>
+          <el-button type="primary" icon="el-icon-check" @click="dialogStatus==='create'?createData():updateData()">
+            Confirm
+          </el-button>
+        </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="close()">
-          Cancel
-        </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
-          Confirm
-        </el-button>
-      </div>
     </el-dialog>
 </template>
 <script>

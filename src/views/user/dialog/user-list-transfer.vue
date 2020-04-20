@@ -1,17 +1,19 @@
 <template>
-    <el-dialog title="Test" ref="modal" :visible.sync="userListTransferVisible"> 
-      <el-transfer
-        filterable
-        :filter-method="filterMethod"
-        filter-placeholder="State Abbreviations"
-        v-model="selectRoleUserList"
-        :titles="['Source', 'Target']"
-        :data="roleUserList">
-      </el-transfer>
-      
-      <div style="text-align:right;">
-        <el-button type="danger" @click="close">Cancel</el-button>
-        <el-button type="primary" @click="crateUserByRole">Confirm</el-button>
+    <el-dialog title="Assign User" ref="modal" :visible.sync="userListTransferVisible"> 
+      <div style="text-align: center">
+        <el-transfer
+          style="text-align: left; display: inline-block"
+          filterable
+          :filter-method="filterMethod"
+          filter-placeholder="State Abbreviations"
+          v-model="selectRoleUserList"
+          :titles="['UnAssigned', 'Assigned']"
+          :data="roleUserList">
+        </el-transfer>
+      </div>
+      <div style="text-align:right; margin-top:15px">
+        <el-button icon="el-icon-close" @click="close">Cancel</el-button>
+        <el-button icon="el-icon-check" type="primary" @click="crateUserByRole">Confirm</el-button>
       </div>  
     </el-dialog>
 </template>
@@ -22,19 +24,6 @@ import { getUserList } from '@/api/tmp-user'
 export default {
   name: 'userListTransfer',
   data() {
-    // const generateData = _ => {
-    //   const data = [];
-    //   const states = ['California', 'Illinois', 'Maryland', 'Texas', 'Florida', 'Colorado', 'Connecticut '];
-    //   const initials = ['CA', 'IL', 'MD', 'TX', 'FL', 'CO', 'CT'];
-    //   states.forEach((city, index) => {
-    //     data.push({
-    //       label: city,
-    //       key: index,
-    //       initial: initials[index]
-    //     });
-    //   });
-    //   return data;
-    // };
     return {
       roleUserList: [],
       selectRoleUserList: [],

@@ -19,22 +19,23 @@
           :data="routesData"
           :props="defaultProps"
           show-checkbox
-          node-key="path"
+          node-key="menuId"
           class="permission-tree"
+          @check-change="checkChange"
         />
       </el-form-item>
+    <el-form-item style="text-align:right;">
+      <el-button icon="el-icon-close" @click="close()">Cancel</el-button>
+      <el-button type="primary" icon="el-icon-check" @click="dialogStatus==='create'?createRole():updateRole()">Confirm</el-button>
+    </el-form-item>
     </el-form>
-    <div style="text-align:right;">
-      <el-button type="danger" @click="dialogVisible=false">Cancel</el-button>
-      <el-button type="primary" @click="dialogStatus==='create'?createRole():updateRole()">Confirm</el-button>
-    </div>
   </el-dialog>
 </template>
 <script>
 
 import path from 'path'
 import { deepClone } from '@/utils'
-import { getRoutes } from '@/api/role'
+import { getRoutes } from '@/api/tmp-menu'
 import { addRole, updateRole } from '@/api/tmp-role'
 
 const defaultRole = {
@@ -88,25 +89,21 @@ export default {
     },
     async getRoutes() {
       const res = await getRoutes()
-      this.serviceRoutes = res.data
       this.routes = this.generateRoutes(res.data)
     },
     // Reshape the routes structure so that it looks the same as the sidebar
     generateRoutes(routes, basePath = '/') {
       const res = []
-
       for (let route of routes) {
         // skip some route
-        if (route.hidden) { continue }
-
+        if (route.displayYn === 'N') { continue }
         const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-
         if (route.children && onlyOneShowingChild && !route.alwaysShow) {
           route = onlyOneShowingChild
         }
         const data = {
-          path: path.resolve(basePath, route.path),
-          title: route.meta && route.meta.title
+          title: route.treeInfo.name,
+          menuId: route.contents.menuId,
         }
         // recursive child routes
         if (route.children) {
@@ -177,20 +174,43 @@ export default {
     onlyOneShowingChild(children = [], parent) {
       let onlyOneChild = null
       const showingChildren = children.filter(item => !item.hidden)
-
       // When there is only one child route, the child route is displayed by default
       if (showingChildren.length === 1) {
         onlyOneChild = showingChildren[0]
-        onlyOneChild.path = path.resolve(parent.path, onlyOneChild.path)
+        onlyOneChild.url = onlyOneChild.contents.url
         return onlyOneChild
       }
-
       // Show parent if there are no child route to display
       if (showingChildren.length === 0) {
-        onlyOneChild = { ... parent, path: '', noShowingChildren: true }
+        onlyOneChild = { ... parent, url: '', noShowingChildren: true }
         return onlyOneChild
       }
       return false
+    },
+    getCheckedNodes() {
+        console.log(this.$refs.tree.getCheckedNodes());
+      },
+    getCheckedKeys() {
+      console.log(this.$refs.tree.getCheckedKeys());
+    },
+    setCheckedNodes() {
+      this.$refs.tree.setCheckedNodes([{
+        id: 5,
+        label: 'Level two 2-1'
+      }, {
+        id: 9,
+        label: 'Level three 1-1-1'
+      }]);
+    },
+    setCheckedKeys() {
+      this.$refs.tree.setCheckedKeys(['admin']);
+    },
+    resetChecked() {
+      this.$refs.tree.setCheckedKeys([]);
+    },
+    checkChange() { 
+      this.getCheckedNodes()
+      this.getCheckedKeys()
     }
   }
 }
@@ -198,13 +218,11 @@ export default {
 
 <style lang="scss" scoped>
 .app-container {
-  .roles-table {
-    margin-top: 30px;
-  }
   .permission-tree {
     margin-bottom: 30px;
     height: 300px;
     overflow-y: scroll;
   }
+  .extra-action {display:flex;justify-content:flex-end;align-items:center;}
 }
 </style>

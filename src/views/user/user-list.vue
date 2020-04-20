@@ -1,15 +1,15 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.userName" placeholder="이름" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-input v-model="listQuery.email" placeholder="이메일" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="listQuery.statusId" placeholder="status" clearable style="width: 90px" class="filter-item">
+      <el-input v-model="listQuery.userName" placeholder="이름" style="width:200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.email" placeholder="이메일" style="width:200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-select v-model="listQuery.statusId" placeholder="status" clearable style="width:90px" class="filter-item">
         <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         Search
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
+      <el-button class="filter-item" style="margin-left:10px;" type="primary" icon="el-icon-plus" @click="handleCreate">
         Add
       </el-button>
     </div>
@@ -47,11 +47,9 @@
       </el-table-column>
       <el-table-column label="Actions" align="center" width="230" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            Edit
+          <el-button type="primary" size="mini" icon="el-icon-edit" @click="handleUpdate(row)">
           </el-button>
-          <el-button v-if="row.statusId!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
-            Delete
+          <el-button v-if="row.statusId!='deleted'" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row,$index)">
           </el-button>
         </template>
       </el-table-column>

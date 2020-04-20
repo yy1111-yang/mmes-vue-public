@@ -3,7 +3,7 @@
     <el-row :gutter="8">
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
         Role List
-        <el-button type="primary" @click="handleAddRole">Add Role</el-button>
+        <el-button class="pull-right" type="primary" icon="el-icon-plus" @click="handleAddRole">Add</el-button>
         <el-table :data="rolesList" style="width: 100%;margin: 10px" border>
           <el-table-column align="center" label="Role Id" width="150" v-if="false">
             <template slot-scope="scope">
@@ -25,10 +25,10 @@
               {{ scope.row.useYn }}
             </template>
           </el-table-column>
-          <el-table-column align="center" label="Operations">
+          <el-table-column align="center" label="Actions">
             <template slot-scope="scope">
-              <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>
-              <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>
+              <el-button type="primary" size="small" icon="el-icon-edit" @click="handleEdit(scope)"></el-button>
+              <el-button type="danger" size="small" icon="el-icon-delete" @click="handleDelete(scope)"></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -36,7 +36,7 @@
       
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
         Assigned User
-        <el-button type="primary" @click="handleAddUserByRole">Add User</el-button>
+        <el-button type="primary" icon="el-icon-edit" @click="handleAddUserByRole">Assign</el-button>
         <el-table :data="roleUserList" style="width: 100%;margin: 10px" border>
           <el-table-column align="center" label="ID" width="220">
             <template slot-scope="scope">
@@ -119,16 +119,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.app-container {
-  .roles-table {
-    margin-top: 30px;
-  }
-  .permission-tree {
-    margin-bottom: 30px;
-    height: 300px;
-    overflow-y: scroll;
-  }
-}
-</style>
