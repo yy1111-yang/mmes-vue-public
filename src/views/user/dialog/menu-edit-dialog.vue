@@ -57,7 +57,6 @@ export default {
     open(paramText, param) {
       this.modal.open();
       this.tempMenu = param
-      console.log(param)
       this.dialogStatus = paramText
       this.menuEditDialogVisible = true
     },

@@ -1,33 +1,20 @@
 <template>
   <div class="app-container">
-    <!-- <div class="custom-tree-container"> -->
     <div class="block">
-    <!-- <el-row :gutter="8"> -->
-      <!-- <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;"> -->
-        <p>Menu</p>
-        <el-button type="primary" size="mini" icon="el-icon-plus" @click="handleAddMenu">Add</el-button>
-        <el-button type="primary" size="mini" icon="el-icon-edit" v-show="editButtonVisible" @click="handleEditMenu">Edit</el-button>
-        <el-tree
-          ref="tree"
-          :check-strictly="checkStrictly"
-          :data="routesData"
-          :props="defaultProps"
-          node-key="menuId"
-          class="permission-tree"
-          @node-click="handleNodeClick"
-          :highlight-current="true"
-        />
+      <el-button type="primary" size="mini" icon="el-icon-plus" @click="handleAddMenu">Add</el-button>
+      <el-button type="primary" size="mini" icon="el-icon-edit" v-show="editButtonVisible" @click="handleEditMenu">Edit</el-button>
+      <el-tree
+        ref="tree"
+        :check-strictly="checkStrictly"
+        :data="routesData"
+        :props="defaultProps"
+        node-key="menuId"
+        class="permission-tree"
+        @node-click="handleNodeClick"
+        :highlight-current="true"
+      />
     </div>
-    <div class="blocK">
-      <!-- </el-col> -->
-      <!-- <el-col :xs="{span: 24}" :sm="{span: 12}" :md="{span: 12}" :lg="{span: 12}" :xl="{span: 12}" style="margin-bottom:30px;"> -->
-      <p>2</p>
-    </div>
-      <!-- </el-col> -->
-    <!-- </el-row> -->
-
     <menu-edit-dialog ref="menuEditDialog" @close="doneEdit()"/>
-
   </div>
 </template>
 
@@ -54,7 +41,7 @@ export default {
         children: 'children',
         label: 'title'
       },
-      addMenuObject: '',
+      editMenuObject: {},
       editButtonVisible: false
     }
   },
@@ -141,20 +128,23 @@ export default {
     },
     handleNodeClick(data) { 
       this.editButtonVisible = true
-      this.addMenuObject = data;
-      if(this.addMenuObject.menuId === undefined) { 
-        this.addMenuObject.menuId = ''
-      }
-      if(this.addMenuObject.url === undefined) { 
-        this.addMenuObject.url = '/'
-      }
-      this.addMenuObject.menuId = this.addMenuObject.menuId + '.'
+      this.menuObject = data;
     },
     handleAddMenu() {
-      this.$refs['menuEditDialog'].open('create', {});
+      var addMenuObject = this.addMenuConvert()
+      this.$refs['menuEditDialog'].open('create', addMenuObject);
+    },
+    addMenuConvert() { 
+      var data = { menuId: '', url: '/' }
+      if(this.menuObject === undefined) { 
+        return data
+      }
+      data.menuId = this.menuObject.menuId + '.'
+      data.url = this.menuObject.url + '/'
+      return data
     },
     handleEditMenu() {
-      this.$refs['menuEditDialog'].open('update', this.addMenuObject);
+      this.$refs['menuEditDialog'].open('update', this.menuObject);
     },
     doneEdit() { 
       this.getRoutes()
