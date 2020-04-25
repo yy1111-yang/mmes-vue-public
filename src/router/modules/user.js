@@ -29,12 +29,6 @@ const userRouter = {
       component: () => import('@/views/user/role-list'),
       name: 'roleList',
       meta: { title: '역할 관리' }
-    },
-    {
-      path: 'role-group-list',
-      component: () => import('@/views/user/role-group-list'),
-      name: 'roleGroupList',
-      meta: { title: '역할그룹 관리' }
     }
   ]
 }

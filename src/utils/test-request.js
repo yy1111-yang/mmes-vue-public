@@ -4,7 +4,6 @@ import store from '@/store'
 import { getToken } from '@/utils/auth'
 
 // create an axios instance
-console.log(process.env)
 const service = axios.create({
     baseURL: process.env.VUE_APP_MMES_BASE_API, // url = base url + request url
     // baseURL: 'http://10.199.22.5:8090/', // url = base url + request url
