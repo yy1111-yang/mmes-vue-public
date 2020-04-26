@@ -12,18 +12,6 @@
           placeholder="Role Description"
         />
       </el-form-item>
-      <el-form-item label="Menus">
-        <el-tree
-          ref="tree"
-          :check-strictly="checkStrictly"
-          :data="routesData"
-          :props="defaultProps"
-          show-checkbox
-          node-key="menuId"
-          class="permission-tree"
-          @check-change="checkChange"
-        />
-      </el-form-item>
     <el-form-item style="text-align:right;">
       <el-button icon="el-icon-close" @click="close()">Cancel</el-button>
       <el-button type="primary" icon="el-icon-check" @click="dialogStatus==='create'?createRole():updateRole()">Confirm</el-button>
@@ -33,16 +21,12 @@
 </template>
 <script>
 
-import path from 'path'
-import { deepClone } from '@/utils'
-import { getRoutes } from '@/api/tmp-menu'
 import { addRole, updateRole } from '@/api/tmp-role'
 
 const defaultRole = {
   roleId: '',
   roleName: '',
   description: '',
-  routes: []
 }
 
 export default {
@@ -51,27 +35,17 @@ export default {
   data() {
     return {
       pRole: Object.assign({}, defaultRole),
-      routes: [],
       rolesList: [],
       roleEditDialogVisible: false,
       dialogStatus: 'create',
-      checkStrictly: false,
-      defaultProps: {
-        children: 'children',
-        label: 'title'
-      }
     }
   },
   computed: {
     modal() {
       return this.$refs["modal"];
     },
-    routesData() {
-      return this.routes
-    }
   },
   created() {
-    this.getRoutes()
   },
   methods: {
     open(paramText, param) {
@@ -86,59 +60,6 @@ export default {
     close() {
       this.modal.close();
       this.roleEditDialogVisible = false
-    },
-    async getRoutes() {
-      const res = await getRoutes()
-      this.routes = this.generateRoutes(res.data)
-    },
-    // Reshape the routes structure so that it looks the same as the sidebar
-    generateRoutes(routes, basePath = '/') {
-      const res = []
-      for (let route of routes) {
-        // skip some route
-        if (route.displayYn === 'N') { continue }
-        const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-        if (route.children && onlyOneShowingChild && !route.alwaysShow) {
-          route = onlyOneShowingChild
-        }
-        const data = {
-          title: route.treeInfo.name,
-          menuId: route.contents.menuId,
-        }
-        // recursive child routes
-        if (route.children) {
-          data.children = this.generateRoutes(route.children, data.path)
-        }
-        res.push(data)
-      }
-      return res
-    },
-    generateArr(routes) {
-      let data = []
-      routes.forEach(route => {
-        data.push(route)
-        if (route.children) {
-          const temp = this.generateArr(route.children)
-          if (temp.length > 0) {
-            data = [...data, ...temp]
-          }
-        }
-      })
-      return data
-    },
-    generateTree(routes, basePath = '/', checkedKeys) {
-      const res = []
-      for (const route of routes) {
-        const routePath = path.resolve(basePath, route.path)
-        // recursive child routes
-        if (route.children) {
-          route.children = this.generateTree(route.children, routePath, checkedKeys)
-        }
-        if (checkedKeys.includes(routePath) || (route.children && route.children.length >= 1)) {
-          res.push(route)
-        }
-      }
-      return res
     },
     async createRole() {
       this.pRole.useYn = 'Y'
@@ -170,47 +91,6 @@ export default {
           `,
         type: 'success'
       })
-    },
-    onlyOneShowingChild(children = [], parent) {
-      let onlyOneChild = null
-      const showingChildren = children.filter(item => !item.hidden)
-      // When there is only one child route, the child route is displayed by default
-      if (showingChildren.length === 1) {
-        onlyOneChild = showingChildren[0]
-        onlyOneChild.url = onlyOneChild.contents.url
-        return onlyOneChild
-      }
-      // Show parent if there are no child route to display
-      if (showingChildren.length === 0) {
-        onlyOneChild = { ... parent, url: '', noShowingChildren: true }
-        return onlyOneChild
-      }
-      return false
-    },
-    getCheckedNodes() {
-        console.log(this.$refs.tree.getCheckedNodes());
-      },
-    getCheckedKeys() {
-      console.log(this.$refs.tree.getCheckedKeys());
-    },
-    setCheckedNodes() {
-      this.$refs.tree.setCheckedNodes([{
-        id: 5,
-        label: 'Level two 2-1'
-      }, {
-        id: 9,
-        label: 'Level three 1-1-1'
-      }]);
-    },
-    setCheckedKeys() {
-      this.$refs.tree.setCheckedKeys(['admin']);
-    },
-    resetChecked() {
-      this.$refs.tree.setCheckedKeys([]);
-    },
-    checkChange() { 
-      this.getCheckedNodes()
-      this.getCheckedKeys()
     }
   }
 }
