@@ -38,7 +38,7 @@
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
         <el-row :gutter="8">
           Assigned User
-          <el-button type="primary" v-if="roleClicked" icon="el-icon-edit" @click="handleAddUserByRole">Assign</el-button>
+          <el-button type="primary" :disabled="roleClicked" icon="el-icon-edit" @click="handleAddUserByRole">Assign</el-button>
           <el-table 
             :data="roleUserList" 
             style="width: 100%;margin: 10px" 
@@ -58,7 +58,7 @@
         </el-row>
         <el-row :gutter="8">
           메뉴 권한
-          <el-button type="primary" v-if="roleClicked" icon="el-icon-edit" @click="handleAddMenuByRole">Update</el-button>
+          <el-button type="primary" :disabled="roleClicked" icon="el-icon-edit" @click="handleAddMenuByRole">Update</el-button>
           <el-tree
             ref="tree"
             :check-strictly="checkStrictly"
@@ -102,7 +102,7 @@ export default {
         children: 'children',
         label: 'title'
       },
-      roleClicked: false
+      roleClicked: true
     }
   },
   computed: {
@@ -143,7 +143,7 @@ export default {
     },
 
     getUserMenuListByRole(row) { 
-      this.roleClicked = true
+      this.roleClicked = false
       this.getUserListByRole(row.roleId)
       this.getRoutes(row)
     },
@@ -213,7 +213,7 @@ export default {
       for(var i=0; i<sltMenuList.length; i++) { 
         data.push({roleId: roleId, menuId: sltMenuList[i]})
       }
-      addAuth(data).then(() => { 
+      addAuth(roleId, data).then(() => { 
         this.$notify({
           title: 'Success',
           message: 'Updated Successfully',

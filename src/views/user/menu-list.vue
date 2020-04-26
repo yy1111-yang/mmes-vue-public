@@ -109,7 +109,7 @@ export default {
     },
     addMenuConvert() { 
       var data = { menuId: '', url: '/' }
-      if(this.menuObject === undefined) { 
+      if(this.menuObject.menuId === undefined) { 
         return data
       }
       data.menuId = this.menuObject.menuId + '.'

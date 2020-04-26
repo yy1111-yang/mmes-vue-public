@@ -7,9 +7,9 @@ export function getAuthList(roleId) {
   })
 }
 
-export function addAuth(data) {
+export function addAuth(roleId, data) {
   return request({
-    url: '/api/v1/SysAuth/',
+    url: `/api/v1/SysAuth/${roleId}`,
     method: 'post',
     data
   })
