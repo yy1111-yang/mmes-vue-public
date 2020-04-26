@@ -1,8 +1,12 @@
 <template>
   <div class="app-container">
-    <div class="block">
+    <div class="block" style="width:30%; margin-bottom:10px;">
+      메뉴
       <el-button type="primary" size="mini" icon="el-icon-plus" @click="handleAddMenu">Add</el-button>
       <el-button type="primary" size="mini" icon="el-icon-edit" v-show="editButtonVisible" @click="handleEditMenu">Edit</el-button>
+    </div>
+    <el-divider style="width:30%"></el-divider>
+    <div style="width:30%;" border> 
       <el-tree
         ref="tree"
         :check-strictly="checkStrictly"
@@ -41,7 +45,7 @@ export default {
         children: 'children',
         label: 'title'
       },
-      editMenuObject: {},
+      menuObject: {},
       editButtonVisible: false
     }
   },
@@ -57,6 +61,7 @@ export default {
   methods: {
     async getRoutes() {
       const res = await getRoutes()
+      console.log(res)
       this.routes = this.generateRoutes(res.data)
     },
     // Reshape the routes structure so that it looks the same as the sidebar
@@ -64,7 +69,6 @@ export default {
       const res = []
       for (let route of routes) {
         // skip some route
-        if (route.displayYn === 'N') { continue }
         const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
         if (route.children && onlyOneShowingChild && !route.alwaysShow) {
           route = onlyOneShowingChild
@@ -72,8 +76,10 @@ export default {
         const data = {
           title: route.treeInfo.name,
           menuId: route.contents.menuId,
-          depth: route.treeInfo.depth,
-          url: route.contents.url
+          url: route.contents.url,
+          menuParentId: route.contents.menuParentId,
+          depth: route.contents.depth,
+          messageDefault: route.treeInfo.name
         }
         // recursive child routes
         if (route.children) {
@@ -83,42 +89,9 @@ export default {
       }
       return res
     },
-    generateArr(routes) {
-      let data = []
-      routes.forEach(route => {
-        data.push(route)
-        if (route.children) {
-          const temp = this.generateArr(route.children)
-          if (temp.length > 0) {
-            data = [...data, ...temp]
-          }
-        }
-      })
-      return data
-    },
-    generateTree(routes, basePath = '/', checkedKeys) {
-      const res = []
-      for (const route of routes) {
-        const routePath = path.resolve(basePath, route.path)
-        // recursive child routes
-        if (route.children) {
-          route.children = this.generateTree(route.children, routePath, checkedKeys)
-        }
-        if (checkedKeys.includes(routePath) || (route.children && route.children.length >= 1)) {
-          res.push(route)
-        }
-      }
-      return res
-    },
     onlyOneShowingChild(children = [], parent) {
       let onlyOneChild = null
       const showingChildren = children.filter(item => !item.hidden)
-      // When there is only one child route, the child route is displayed by default
-      if (showingChildren.length === 1) {
-        onlyOneChild = showingChildren[0]
-        onlyOneChild.url = onlyOneChild.contents.url
-        return onlyOneChild
-      }
       // Show parent if there are no child route to display
       if (showingChildren.length === 0) {
         onlyOneChild = { ... parent, url: '', noShowingChildren: true }
@@ -141,6 +114,8 @@ export default {
       }
       data.menuId = this.menuObject.menuId + '.'
       data.url = this.menuObject.url + '/'
+      data.menuParentId = this.menuObject.menuId
+      data.depth = this.menuObject.depth +1
       return data
     },
     handleEditMenu() {

@@ -17,7 +17,7 @@
         <el-button icon="el-icon-close" @click="close()">
           Cancel
         </el-button>
-        <el-button type="primary" icon="el-icon-check" @click="dialogStatus==='create'?createMenu():updateData()">
+        <el-button type="primary" icon="el-icon-check" @click="dialogStatus==='create'?createMenu():updateMenu()">
           Confirm
         </el-button>
       </el-form-item>
@@ -39,7 +39,9 @@ export default {
         menuParentId: '',
         menuId: '',
         messageDefault: '',
-        url: ''
+        url: '',
+        depth: '',
+        seq: ''
       },
       rules: {
         menuId: [{ required: true, message: 'Menu ID is required', trigger: 'change' }],
@@ -65,37 +67,39 @@ export default {
       this.menuEditDialogVisible = false
     },
     createMenu() { 
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['paramDataForm'].validate((valid) => {
         if (valid) {
           this.tempMenu.messageGroup = 'test'
           this.tempMenu.messageCode = 'test'
-          this.tempMenu.useYn = true
-          this.tempMenu.displayYn = true
-          this.tempMenu.depth = 1
-          this.tempMenu.seq = 1
+          this.tempMenu.useYn = 'Y'
+          this.tempMenu.displayYn = 'Y'
           createSingleMenu(this.tempMenu).then(() => {
-            // this.list.unshift(this.temp)
-            this.dialogVisible = false
+            this.$emit('close')
             this.$notify({
               title: 'Success',
               message: 'Created Successfully',
               type: 'success',
               duration: 2000
             })
+            this.close()
           })
         }
       })
     },
     updateMenu() {
-      updateSingleMenu(this.tempUser.userId, this.tempUser).then(() => {
-        this.$emit('close', this.tempUser)
-        this.$notify({
-          title: 'Success',
-          message: 'Updated Successfully',
-          type: 'success',
-          duration: 2000
-        })
-        this.close();
+      this.$refs['paramDataForm'].validate((valid) => {
+        if(valid) { 
+          updateSingleMenu(this.tempMenu).then(() => {
+            this.$emit('close')
+            this.$notify({
+              title: 'Success',
+              message: 'Updated Successfully',
+              type: 'success',
+              duration: 2000
+            })
+            this.close();
+          })
+        }
       })
     }
   }

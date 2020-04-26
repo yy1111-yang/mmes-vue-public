@@ -1,7 +1,7 @@
 <template>
   <el-dialog :visible.sync="roleEditDialogVisible" ref="modal" :title="dialogStatus==='update'?'Edit Role':'New Role'">
-    <el-form :model="pRole" label-width="80px" label-position="left">
-      <el-form-item label="Name">
+    <el-form :model="pRole" ref="paramDataForm" :rules="rules" label-width="80px" label-position="left">
+      <el-form-item label="Name" prop="roleName">
         <el-input v-model="pRole.roleName" placeholder="Role Name" />
       </el-form-item>
       <el-form-item label="Desc">
@@ -38,6 +38,9 @@ export default {
       rolesList: [],
       roleEditDialogVisible: false,
       dialogStatus: 'create',
+      rules: {
+        roleName: [{ required: true, message: 'Role Name is required', trigger: 'change' }]
+      }
     }
   },
   computed: {
@@ -63,33 +66,43 @@ export default {
     },
     async createRole() {
       this.pRole.useYn = 'Y'
-      await addRole(this.pRole)
-      this.$emit('close', this.pRole)
-      this.close()
-      const { description, roleName } = this.pRole
-      this.$notify({
-        title: 'Success',
-        dangerouslyUseHTMLString: true,
-        message: `
-            <div>Role Name: ${roleName}</div>
-            <div>Description: ${description}</div>
-          `,
-        type: 'success'
+      this.$refs['paramDataForm'].validate((valid) => {
+        if(valid) { 
+          addRole(this.pRole).then(() => { 
+            this.$emit('close', this.pRole)
+            this.close()
+            const { description, roleName } = this.pRole
+            this.$notify({
+              title: 'Success',
+              dangerouslyUseHTMLString: true,
+              message: `
+                  <div>Role Name: ${roleName}</div>
+                  <div>Description: ${description}</div>
+                `,
+              type: 'success'
+            })
+          })
+        }
       })
     },
     async updateRole() {
-      await updateRole(this.pRole.roleId, this.pRole)
-      this.$emit('close', this.pRole)
-      this.close()
-      const { description, roleName } = this.pRole
-      this.$notify({
-        title: 'Success',
-        dangerouslyUseHTMLString: true,
-        message: `
-            <div>Role Name: ${roleName}</div>
-            <div>Description: ${description}</div>
-          `,
-        type: 'success'
+      this.$refs['paramDataForm'].validate((valid) => {
+        if(valid) { 
+          updateRole(this.pRole.roleId, this.pRole).then(() => {
+            this.$emit('close', this.pRole)
+            this.close()
+            const { description, roleName } = this.pRole
+            this.$notify({
+              title: 'Success',
+              dangerouslyUseHTMLString: true,
+              message: `
+                  <div>Role Name: ${roleName}</div>
+                  <div>Description: ${description}</div>
+                `,
+              type: 'success'
+            })
+          })
+        }
       })
     }
   }

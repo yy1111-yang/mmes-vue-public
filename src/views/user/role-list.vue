@@ -178,7 +178,6 @@ export default {
       const res = []
       for (let route of routes) {
         // skip some route
-        if (route.displayYn === 'N') { continue }
         const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
         if (route.children && onlyOneShowingChild && !route.alwaysShow) {
           route = onlyOneShowingChild
@@ -197,42 +196,9 @@ export default {
       }
       return res
     },
-    generateArr(routes) {
-      let data = []
-      routes.forEach(route => {
-        data.push(route)
-        if (route.children) {
-          const temp = this.generateArr(route.children)
-          if (temp.length > 0) {
-            data = [...data, ...temp]
-          }
-        }
-      })
-      return data
-    },
-    generateTree(routes, basePath = '/', checkedKeys) {
-      const res = []
-      for (const route of routes) {
-        const routePath = path.resolve(basePath, route.path)
-        // recursive child routes
-        if (route.children) {
-          route.children = this.generateTree(route.children, routePath, checkedKeys)
-        }
-        if (checkedKeys.includes(routePath) || (route.children && route.children.length >= 1)) {
-          res.push(route)
-        }
-      }
-      return res
-    },
     onlyOneShowingChild(children = [], parent) {
       let onlyOneChild = null
       const showingChildren = children.filter(item => !item.hidden)
-      // When there is only one child route, the child route is displayed by default
-      if (showingChildren.length === 1) {
-        onlyOneChild = showingChildren[0]
-        onlyOneChild.url = onlyOneChild.contents.url
-        return onlyOneChild
-      }
       // Show parent if there are no child route to display
       if (showingChildren.length === 0) {
         onlyOneChild = { ... parent, url: '', noShowingChildren: true }
@@ -240,14 +206,21 @@ export default {
       }
       return false
     },
-    async handleAddMenuByRole() { 
+    handleAddMenuByRole() { 
       var sltMenuList = this.$refs.tree.getCheckedKeys()
       var roleId = this.roleId
       var data = []
       for(var i=0; i<sltMenuList.length; i++) { 
         data.push({roleId: roleId, menuId: sltMenuList[i]})
       }
-      const res = await addAuth(data)
+      addAuth(data).then(() => { 
+        this.$notify({
+          title: 'Success',
+          message: 'Updated Successfully',
+          type: 'success',
+          duration: 2000
+        })
+      })
     }
   }
 }

@@ -16,7 +16,7 @@
         <el-form-item label="비밀번호" prop="authCode">
           <el-input v-model="tempUser.authCode" type="password" />
         </el-form-item>
-        <el-form-item label="StatusId" prop="statusId">
+        <el-form-item label="상태" prop="statusId">
           <el-select v-model="tempUser.statusId" class="filter-item" placeholder="Please select">
             <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
           </el-select>
@@ -35,6 +35,7 @@
 <script>
 
 import { createUser, updateUser, checkDuplicated } from '@/api/tmp-user'
+import { validEmail } from '@/utils/validate'
 
 export default {
   name: 'userEditDialog',
@@ -60,9 +61,9 @@ export default {
       rules: {
         userId: [{ required: true, message: 'ID is required', trigger: 'change' }],
         userName: [{ required: true, message: 'name is required', trigger: 'change' }],
-        email: [{ required: true, message: 'email is required', trigger: 'blur' }],
-        authCode: [{ required: true, message: 'password is required', trigger: 'blur' }],
-        statusId: [{ required: true, message: 'status is required', trigger: 'blur' }]
+        email: [{ required: true, message: 'email is required', trigger: 'change' }],
+        authCode: [{ required: true, message: 'password is required', trigger: 'change' }],
+        statusId: [{ required: true, message: 'status is required', trigger: 'change' }]
       }
     }
   },
@@ -78,13 +79,12 @@ export default {
       this.dialogStatus = paramText
       if( paramText === 'update') { 
         this.disabled = true
+        this.isDuplicated = false
+      }
+      else { 
+        this.isDuplicated = true
       }
       this.userEditDialogVisible = true
-      this.initData()
-    },
-    initData() { 
-      this.disabled = false
-      this.isDuplicated = true
     },
     close() {
       this.modal.close();
@@ -93,6 +93,15 @@ export default {
     createData() {
       this.$refs['paramDataForm'].validate((valid) => {
         if (valid) {
+          if(!validEmail(this.tempUser.email)) { 
+            this.$notify({
+              title: 'Warning',
+              message: '이메일 형식을 확인해주세요.',
+              type: 'warning',
+              duration: 2000
+            })
+            return
+          }
           createUser(this.tempUser).then(() => {
             this.$emit('close', this.tempUser)
             this.$notify({
@@ -107,16 +116,25 @@ export default {
       })
     },
     updateData() {
-      updateUser(this.tempUser.userId, this.tempUser).then(() => {
-        this.$emit('close', this.tempUser)
-        this.$notify({
-          title: 'Success',
-          message: 'Updated Successfully',
-          type: 'success',
-          duration: 2000
-        })
-        this.close();
+      this.$refs['paramDataForm'].validate((valid) => {
+        if (valid) {
+          if(validEmail(this.tempUser.email)) { 
+            updateUser(this.tempUser.userId, this.tempUser).then(() => {
+              this.$emit('close', this.tempUser)
+              this.$notify({
+                title: 'Success',
+                message: 'Updated Successfully',
+                type: 'success',
+                duration: 2000
+              })
+              this.close();
+            })
+          }
+        }
       })
+    },
+    checkEmailFormat() { 
+
     },
     async checkDuplicateId() { 
       const res = await checkDuplicated(this.tempUser.userId)
