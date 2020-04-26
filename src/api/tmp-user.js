@@ -38,3 +38,9 @@ export function updateUser(id, data) {
   })
 }
 
+export function checkDuplicated(userId) {
+  return Request({
+    url: `/api/v1/SysUser/duplicated/${userId}`,
+    method: 'get',
+  })
+}

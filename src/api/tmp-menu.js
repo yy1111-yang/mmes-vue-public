@@ -14,3 +14,12 @@ export function createSingleMenu(data) {
     data
   })
 }
+
+export function updateSingleMenu(data) {
+  return request({
+    url: '/api/v1/SysMenu/',
+    method: 'put',
+    data
+  })
+}
+

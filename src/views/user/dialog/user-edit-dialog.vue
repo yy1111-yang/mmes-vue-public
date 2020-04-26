@@ -2,7 +2,10 @@
     <el-dialog :title="textMap[dialogStatus]" ref="modal" :visible.sync="userEditDialogVisible" width="40%">
       <el-form ref="paramDataForm" :rules="rules" :model="tempUser" label-position="left" label-width="80px" style="width: 80%; margin-left:50px;">
         <el-form-item label="ID" prop="userId">
-          <el-input v-model="tempUser.userId" :disabled="disabled" />
+          <el-input v-model="tempUser.userId" :disabled="disabled" style="width:70%;" @change="isDuplicated=true" />
+          <el-button type="primary" size="small" icon="el-icon-check" style="width:100px;" @click="checkDuplicateId()">
+            중복 체크
+          </el-button>
         </el-form-item>
         <el-form-item label="이름" prop="userName">
           <el-input v-model="tempUser.userName" />
@@ -22,7 +25,7 @@
           <el-button icon="el-icon-close" @click="close()">
             Cancel
           </el-button>
-          <el-button type="primary" icon="el-icon-check" @click="dialogStatus==='create'?createData():updateData()">
+          <el-button :disabled="isDuplicated" type="primary" icon="el-icon-check" @click="dialogStatus==='create'?createData():updateData()">
             Confirm
           </el-button>
         </el-form-item>
@@ -31,7 +34,7 @@
 </template>
 <script>
 
-import { createUser, updateUser } from '@/api/tmp-user'
+import { createUser, updateUser, checkDuplicated } from '@/api/tmp-user'
 
 export default {
   name: 'userEditDialog',
@@ -44,6 +47,7 @@ export default {
       },
       disabled: false,
       userEditDialogVisible: false,
+      isDuplicated: true,
       statusOptions: ['Y', 'N'],
       dialogStatus: '',
       tempUser: {
@@ -76,6 +80,11 @@ export default {
         this.disabled = true
       }
       this.userEditDialogVisible = true
+      this.initData()
+    },
+    initData() { 
+      this.disabled = false
+      this.isDuplicated = true
     },
     close() {
       this.modal.close();
@@ -107,6 +116,24 @@ export default {
           duration: 2000
         })
         this.close();
+      })
+    },
+    async checkDuplicateId() { 
+      const res = await checkDuplicated(this.tempUser.userId)
+      var title = 'Warning' 
+      var message = '사용 불가능한 ID 입니다.'
+      var type = 'warning'
+      if(res.data.items == null) { 
+        title = 'Success' 
+        message = '사용 가능한 ID 입니다.'
+        type = 'success'
+        this.isDuplicated = false
+      }
+      this.$notify({
+        title: title,
+        message: message,
+        type: type,
+        duration: 2000
       })
     }
   }

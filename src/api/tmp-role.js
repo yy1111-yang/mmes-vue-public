@@ -1,12 +1,5 @@
 import request from '@/utils/test-request'
 
-export function getRoutes() {
-  return request({
-    url: '/vue-element-admin/routes',
-    method: 'get'
-  })
-}
-
 export function getRoles() {
   return request({
     url: '/api/v1/SysRole/',
@@ -14,7 +7,7 @@ export function getRoles() {
   })
 }
 
-export function getRoleUsers(roleId) {
+export function getUserByRole(roleId) {
   return request({
     url: `/api/v1/SysRole/${roleId}/user`,
     method: 'get'
@@ -52,9 +45,3 @@ export function addUserByRole(roleId, data) {
   })
 }
 
-export function getUserByRole(roleId) {
-  return request({
-    url: `/api/v1/SysRole/${roleId}/user`,
-    method: 'get'
-  })
-}

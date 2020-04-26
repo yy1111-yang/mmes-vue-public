@@ -3,7 +3,7 @@
     <el-row :gutter="8">
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
         Role List
-        <el-button class="pull-right" type="primary" icon="el-icon-plus" @click="handleAddRole">Add</el-button>
+        <el-button class="pull-right" style="float:right; margin-bottom:10px" type="primary" icon="el-icon-plus" @click="handleAddRole">Add</el-button>
         <el-table :data="rolesList" style="width: 100%;margin: 10px" border highlight-current-row
            @current-change="getUserMenuListByRole" >
           <el-table-column align="center" label="Role Id" width="150" v-if="false">
@@ -80,7 +80,7 @@
 </template>
 <script>
 
-import { getRoles, deleteRole, getRoleUsers, getUserByRole } from '@/api/tmp-role'
+import { getRoles, deleteRole, getUserByRole } from '@/api/tmp-role'
 import userListTransfer from './dialog/user-list-transfer'
 import roleEditDialog from './dialog/role-edit-dialog'
 import path from 'path'
@@ -149,7 +149,7 @@ export default {
     },
     async getUserListByRole(roleId) { 
       this.roleId = roleId
-      const res = await getRoleUsers(this.roleId)
+      const res = await getUserByRole(this.roleId)
       this.roleUserList = res.data.items
     },
     handleAddUserByRole() { 
