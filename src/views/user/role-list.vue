@@ -2,8 +2,10 @@
   <div class="app-container">
     <el-row :gutter="8">
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
-        Role List
-        <el-button class="pull-right" style="float:right; margin-bottom:10px" type="primary" icon="el-icon-plus" @click="handleAddRole">Add</el-button>
+        <div class="block" style="width:30%; margin-bottom:10px; position:relative">
+          <span style="margin-left:10px">Role List</span>
+          <el-button class="pull-right" style="margin-left:20px" type="primary" icon="el-icon-plus" @click="handleAddRole">Add</el-button>
+        </div>
         <el-table :data="rolesList" style="width: 100%;margin: 10px" border highlight-current-row
            @current-change="getUserMenuListByRole" >
           <el-table-column align="center" label="Role Id" width="150" v-if="false">
@@ -37,8 +39,10 @@
       
       <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 12}" :xl="{span: 12}" style="padding-right:8px;margin-bottom:30px;">
         <el-row :gutter="8">
-          Assigned User
-          <el-button type="primary" :disabled="roleClicked" icon="el-icon-edit" @click="handleAddUserByRole">Assign</el-button>
+          <div class="block" style="margin-bottom:10px; position:relative">
+            <span style="margin-left:10px">Assigned User</span>
+            <el-button type="primary" style="margin-left:20px;" :disabled="roleClicked" icon="el-icon-edit" @click="handleAddUserByRole">Assign</el-button>
+          </div>
           <el-table 
             :data="roleUserList" 
             style="width: 100%;margin: 10px" 
@@ -57,8 +61,10 @@
           </el-table>
         </el-row>
         <el-row :gutter="8">
-          메뉴 권한
-          <el-button type="primary" :disabled="roleClicked" icon="el-icon-edit" @click="handleAddMenuByRole">Update</el-button>
+          <div class="block" style="margin-bottom:10px; position:relative">
+            <span style="margin-left:10px">메뉴 권한</span>
+            <el-button type="primary" style="margin-left:20px" :disabled="roleClicked" icon="el-icon-edit" @click="handleAddMenuByRole">Update</el-button>
+          </div>
           <el-tree
             ref="tree"
             :check-strictly="checkStrictly"
@@ -70,12 +76,52 @@
             :highlight-current="true"
           />
         </el-row>
+
+        <el-row :gutter="8">
+          <div class="block" style="margin-bottom:10px; position:relative">
+            <span style="margin-left:10px">메뉴 권한2</span>
+            <el-button type="primary" style="margin-left:20px" :disabled="roleClicked" icon="el-icon-edit" >Update</el-button>
+          </div>
+          <el-table
+            :data="routesData"
+            style="width: 100%; margin-bottom: 20px;"
+            row-key="menuId"
+            border
+            >
+            <el-table-column label="메뉴명" prop="date" sortable="custom" align="left" width="310px" >
+              <template slot-scope="{row}">
+                <span>{{ row.menuId }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="create" prop="create" align="center" width="80px" >
+              <template slot-scope="{row}">
+                <el-checkbox v-model="row.create"></el-checkbox>
+              </template>
+            </el-table-column>
+            <el-table-column label="read" prop="read" align="center" width="80px" >
+              <template slot-scope="{row}">
+                <el-checkbox v-model="row.read"></el-checkbox>
+              </template>
+            </el-table-column>
+            <el-table-column label="update" prop="update" align="center" width="80px" >
+              <template slot-scope="{row}">
+                <el-checkbox v-model="row.update"></el-checkbox>
+              </template>
+            </el-table-column>
+            <el-table-column label="delete" prop="delete" align="center" width="80px" >
+              <template slot-scope="{row}">
+                <el-checkbox v-model="row.delete"></el-checkbox>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-row>
       </el-col>
     </el-row>
 
     <role-edit-dialog ref="roleEditDialog" @close="getRoles"/>
 
     <user-list-transfer ref="userListTransfer" @close="userListTransferClose" />
+
   </div>
 </template>
 <script>
@@ -102,7 +148,38 @@ export default {
         children: 'children',
         label: 'title'
       },
-      roleClicked: true
+      roleClicked: true,
+
+      tableData: [{
+          id: 1,
+          date: '2016-05-02',
+          name: 'wangxiaohu'
+          ,create: true
+        }, {
+          id: 2,
+          date: '2016-05-04',
+          name: 'wangxiaohu'
+          ,create: true
+        }, {
+          id: 3,
+          date: '2016-05-01',
+          name: 'wangxiaohu',
+          create: false,
+          children: [{
+              id: 31,
+              date: '2016-05-01',
+              name: 'wangxiaohu'
+            }, {
+              id: 32,
+              date: '2016-05-01',
+              name: 'wangxiaohu'
+          }]
+        }, {
+          id: 4,
+          date: '2016-05-03',
+          name: 'wangxiaohu',
+          create: true
+        }]
     }
   },
   computed: {
@@ -115,6 +192,21 @@ export default {
     this.getRoles()
   },
   methods: {
+    load(tree, treeNode, resolve) {
+      setTimeout(() => {
+        resolve([
+          {
+            id: 31,
+            date: '2016-05-01',
+            name: 'wangxiaohu'
+          }, {
+            id: 32,
+            date: '2016-05-01',
+            name: 'wangxiaohu'
+          }
+        ])
+      }, 1000)
+    },
     async getRoles() {
       const res = await getRoles()
       this.rolesList = res.data.items

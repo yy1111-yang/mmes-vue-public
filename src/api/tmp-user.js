@@ -44,3 +44,19 @@ export function checkDuplicated(userId) {
     method: 'get',
   })
 }
+
+export function login(data) {
+  return request({
+    url: '/api/v1/SysUser/login',
+    method: 'post',
+    data
+  })
+}
+
+export function getInfo(token) {
+  return request({
+    url: '/api/v1/SysUser/info',
+    method: 'get',
+    params: { token }
+  })
+}

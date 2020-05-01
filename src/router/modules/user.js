@@ -29,6 +29,12 @@ const userRouter = {
       component: () => import('@/views/user/role-list'),
       name: 'roleList',
       meta: { title: '역할 관리' }
+    },
+    {
+      path: 'crud-test',
+      component: () => import('@/views/user/crud-test'),
+      name: 'crudTest',
+      meta: { title: 'CRUD-TEST' }
     }
   ]
 }

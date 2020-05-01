@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <div class="block" style="width:30%; margin-bottom:10px;">
-      메뉴
+    <div class="block" style="width:30%; margin-bottom:10px; position:relative">
+      <span>메뉴</span>
       <el-button type="primary" size="mini" icon="el-icon-plus" @click="handleAddMenu">Add</el-button>
       <el-button type="primary" size="mini" icon="el-icon-edit" v-show="editButtonVisible" @click="handleEditMenu">Edit</el-button>
     </div>
