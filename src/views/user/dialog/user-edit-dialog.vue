@@ -82,6 +82,7 @@ export default {
         this.isDuplicated = false
       }
       else { 
+        this.disabled = false
         this.isDuplicated = true
       }
       this.userEditDialogVisible = true
@@ -132,9 +133,6 @@ export default {
           }
         }
       })
-    },
-    checkEmailFormat() { 
-
     },
     async checkDuplicateId() { 
       const res = await checkDuplicated(this.tempUser.userId)
