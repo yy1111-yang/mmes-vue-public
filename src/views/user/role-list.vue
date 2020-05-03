@@ -60,31 +60,15 @@
             </el-table-column>
           </el-table>
         </el-row>
-        <el-row :gutter="8">
-          <div class="block" style="margin-bottom:10px; position:relative">
-            <span style="margin-left:10px">메뉴 권한</span>
-            <el-button type="primary" style="margin-left:20px" :disabled="roleClicked" icon="el-icon-edit" @click="handleAddMenuByRole">Update</el-button>
-          </div>
-          <el-tree
-            ref="tree"
-            :check-strictly="checkStrictly"
-            :data="routesData"
-            :props="defaultProps"
-            show-checkbox
-            node-key="menuId"
-            class="permission-tree"
-            :highlight-current="true"
-          />
-        </el-row>
 
         <el-row :gutter="8">
           <div class="block" style="margin-bottom:10px; position:relative">
-            <span style="margin-left:10px">메뉴 권한2</span>
-            <el-button type="primary" style="margin-left:20px" :disabled="roleClicked" icon="el-icon-edit" >Update</el-button>
+            <span style="margin-left:10px">메뉴 권한</span>
+            <el-button type="primary" style="margin-left:20px" :disabled="roleClicked" icon="el-icon-edit" @click="handleUpdateMenuByAuth">Update</el-button>
           </div>
           <el-table
             :data="routesData"
-            style="width: 100%; margin-bottom: 20px;"
+            style="width: 100%; margin-left:10px; margin-bottom: 20px;"
             row-key="menuId"
             border
             >
@@ -95,22 +79,22 @@
             </el-table-column>
             <el-table-column label="create" prop="create" align="center" width="80px" >
               <template slot-scope="{row}">
-                <el-checkbox v-model="row.create"></el-checkbox>
+                <el-checkbox v-model="row.authCreate"></el-checkbox>
               </template>
             </el-table-column>
             <el-table-column label="read" prop="read" align="center" width="80px" >
               <template slot-scope="{row}">
-                <el-checkbox v-model="row.read"></el-checkbox>
+                <el-checkbox v-model="row.authRead"></el-checkbox>
               </template>
             </el-table-column>
             <el-table-column label="update" prop="update" align="center" width="80px" >
               <template slot-scope="{row}">
-                <el-checkbox v-model="row.update"></el-checkbox>
+                <el-checkbox v-model="row.authUpdate"></el-checkbox>
               </template>
             </el-table-column>
             <el-table-column label="delete" prop="delete" align="center" width="80px" >
               <template slot-scope="{row}">
-                <el-checkbox v-model="row.delete"></el-checkbox>
+                <el-checkbox v-model="row.authDelete"></el-checkbox>
               </template>
             </el-table-column>
           </el-table>
@@ -149,37 +133,7 @@ export default {
         label: 'title'
       },
       roleClicked: true,
-
-      tableData: [{
-          id: 1,
-          date: '2016-05-02',
-          name: 'wangxiaohu'
-          ,create: true
-        }, {
-          id: 2,
-          date: '2016-05-04',
-          name: 'wangxiaohu'
-          ,create: true
-        }, {
-          id: 3,
-          date: '2016-05-01',
-          name: 'wangxiaohu',
-          create: false,
-          children: [{
-              id: 31,
-              date: '2016-05-01',
-              name: 'wangxiaohu'
-            }, {
-              id: 32,
-              date: '2016-05-01',
-              name: 'wangxiaohu'
-          }]
-        }, {
-          id: 4,
-          date: '2016-05-03',
-          name: 'wangxiaohu',
-          create: true
-        }]
+      authUpdateData: []
     }
   },
   computed: {
@@ -192,21 +146,6 @@ export default {
     this.getRoles()
   },
   methods: {
-    load(tree, treeNode, resolve) {
-      setTimeout(() => {
-        resolve([
-          {
-            id: 31,
-            date: '2016-05-01',
-            name: 'wangxiaohu'
-          }, {
-            id: 32,
-            date: '2016-05-01',
-            name: 'wangxiaohu'
-          }
-        ])
-      }, 1000)
-    },
     async getRoles() {
       const res = await getRoles()
       this.rolesList = res.data.items
@@ -254,18 +193,7 @@ export default {
     async getRoutes(row) {
       const res = await getRoutes()
       this.routes = this.generateRoutes(res.data)
-      this.setCheckedAuth(row.roleId)
     },
-    async setCheckedAuth(roleId) { 
-      const res = await getAuthList(roleId)
-      var authList = []
-      var list = res.data.items
-      for(var i=0; i<list.length; i++) {
-        authList.push(list[i].menuId)
-      }
-      this.$refs.tree.setCheckedKeys(authList);
-    },
-    // Reshape the routes structure so that it looks the same as the sidebar
     generateRoutes(routes, basePath = '/') {
       const res = []
       for (let route of routes) {
@@ -278,7 +206,11 @@ export default {
           title: route.treeInfo.name,
           menuId: route.contents.menuId,
           depth: route.treeInfo.depth,
-          url: route.contents.url
+          url: route.contents.url,
+          authCreate: route.contents.authCreate === "Y" ,
+          authRead: route.contents.authRead === "Y",
+          authUpdate: route.contents.authUpdate === "Y",
+          authDelete: route.contents.authDelete === "Y"
         }
         // recursive child routes
         if (route.children) {
@@ -298,14 +230,10 @@ export default {
       }
       return false
     },
-    handleAddMenuByRole() { 
-      var sltMenuList = this.$refs.tree.getCheckedKeys()
-      var roleId = this.roleId
-      var data = []
-      for(var i=0; i<sltMenuList.length; i++) { 
-        data.push({roleId: roleId, menuId: sltMenuList[i]})
-      }
-      addAuth(roleId, data).then(() => { 
+    handleUpdateMenuByAuth() {
+      this.authUpdateData = []
+      this.getChildren(this.routes)
+      addAuth(this.roleId, this.authUpdateData).then(() => { 
         this.$notify({
           title: 'Success',
           message: 'Updated Successfully',
@@ -313,6 +241,21 @@ export default {
           duration: 2000
         })
       })
+    },
+    getChildren(sltMenuList) { 
+      for(var i=0; i<sltMenuList.length; i++) { 
+        if(sltMenuList[i].children.length > 0 ) { 
+          this.getChildren(sltMenuList[i].children)
+        }
+        this.authUpdateData.push({
+          roleId: this.roleId, 
+          menuId: sltMenuList[i].menuId,
+          authCreate: sltMenuList[i].authCreate ? 'Y' : 'N',
+          authRead: sltMenuList[i].authRead ? 'Y' : 'N',
+          authUpdate: sltMenuList[i].authUpdate ? 'Y' : 'N',
+          authDelete: sltMenuList[i].authDelete ? 'Y' : 'N'
+        })
+      }
     }
   }
 }
