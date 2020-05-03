@@ -1,4 +1,5 @@
 import { asyncRoutes, constantRoutes } from '@/router'
+import { getAuthList } from '@/api/tmp-auth'
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -10,6 +11,16 @@ function hasPermission(roles, route) {
     return roles.some(role => route.meta.roles.includes(role))
   } else {
     return true
+  }
+}
+
+function initCurrMenuAuth() { 
+  return { 
+    menuId: '',
+    authCreate: false,
+    authRead: false,
+    authUpdate: false,
+    authDelete: false
   }
 }
 
@@ -36,13 +47,27 @@ export function filterAsyncRoutes(routes, roles) {
 
 const state = {
   routes: [],
-  addRoutes: []
+  addRoutes: [],
+  authList: [],
+  currMenuAuth: { 
+    menuId: '',
+    authCreate: false,
+    authRead: false,
+    authUpdate: false,
+    authDelete: false
+  }
 }
 
 const mutations = {
   SET_ROUTES: (state, routes) => {
     state.addRoutes = routes
     state.routes = constantRoutes.concat(routes)
+  },
+  SET_AUTH: (state, authList) => { 
+    state.authList = authList
+  },
+  SET_CURR_MENU_AUTH: (state, currMenuAuth) => { 
+    state.currMenuAuth = currMenuAuth
   }
 }
 
@@ -58,7 +83,35 @@ const actions = {
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })
+  },
+  generateAuthList({commit}) { 
+    return new Promise(resolve => {
+      var roleId = 'admin'
+      getAuthList(roleId).then((response) => { 
+        var list = response.data.items
+        commit('SET_AUTH', list)
+        resolve()
+      })
+    })
+  },
+  generateCurrAuth({commit}, menuId) { 
+    return new Promise(resolve => {
+      var map = initCurrMenuAuth()
+      for(var i in state.authList) { 
+        if(state.authList[i].menuId === menuId) { 
+          map.menuId = menuId
+          map.authCreate = state.authList[i].authCreate === "Y"
+          map.authRead = state.authList[i].authRead === "Y"
+          map.authUpdate = state.authList[i].authUpdate === "Y"
+          map.authDelete = state.authList[i].authDelete === "Y"
+          break;
+        }
+      }
+      commit('SET_CURR_MENU_AUTH', map)
+      resolve()
+    })
   }
+
 }
 
 export default {

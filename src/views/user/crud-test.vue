@@ -14,24 +14,12 @@
         delete
       </el-button>
     </div>
-    <div class="filter-container">
-      <el-button class="filter-item" type="primary" icon="el-icon-search" @click="createAuthClick">
-        createAuth
-      </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="readAuthClick">
-        readAuth
-      </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="updateAuthClick">
-        updateAuth
-      </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="deleteAuthClick">
-        deleteAuth
-      </el-button>
-    </div>
   </div>
 </template>
 
 <script>
+
+import store from '@/store'
 
 export default {
   name: 'UserList',
@@ -40,10 +28,15 @@ export default {
       createDisabled: true,
       readDisabled: true,
       updateDisabled: true,
-      deleteDisabled: true
+      deleteDisabled: true,
     }
   },
   created() {
+    console.log(store.getters.currMenuAuth)
+    this.createDisabled = !store.getters.currMenuAuth.authCreate
+    this.readDisabled = !store.getters.currMenuAuth.authRead
+    this.updateDisabled = !store.getters.currMenuAuth.authUpdate
+    this.deleteDisabled = !store.getters.currMenuAuth.authDelete
   },
   methods: {
     createClick() { 
@@ -57,20 +50,7 @@ export default {
     },
     deleteClick() { 
       alert('delete')    
-    },
-    createAuthClick() { 
-      alert('create')
-    },
-    readAuthClick() { 
-      alert('read')
-    },
-    updateAuthClick() { 
-      alert('update')
-    },
-    deleteAuthClick() { 
-      alert('delete')
-    },
-
+    }
   }
 }
 </script>
