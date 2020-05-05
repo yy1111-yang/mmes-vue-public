@@ -1,23 +1,32 @@
 <template>
   <div class="app-container">
-    <div class="block" style="width:30%; margin-bottom:10px; position:relative">
-      <span>메뉴</span>
-      <el-button type="primary" size="mini" icon="el-icon-plus" @click="handleAddMenu">Add</el-button>
-      <el-button type="primary" size="mini" icon="el-icon-edit" v-show="editButtonVisible" @click="handleEditMenu">Edit</el-button>
+    <div class="block" style="margin-bottom:10px; position:relative">
+      <span style="margin-left:10px">메뉴</span>
+      <el-button type="primary" style="margin-left:20px" icon="el-icon-plus" @click="handleAddMenu">Add</el-button>
     </div>
-    <el-divider style="width:30%"></el-divider>
-    <div style="width:30%;" border> 
-      <el-tree
-        ref="tree"
-        :check-strictly="checkStrictly"
-        :data="routesData"
-        :props="defaultProps"
-        node-key="menuId"
-        class="permission-tree"
-        @node-click="handleNodeClick"
-        :highlight-current="true"
-      />
-    </div>
+    <el-table
+      :data="routesData"
+      style="width: 50%; margin-left:10px; margin-bottom: 20px;"
+      row-key="menuId"
+      border
+      >
+      <el-table-column label="메뉴명" prop="date" sortable="custom" align="left" >
+        <template slot-scope="{row}">
+          <span>{{ row.menuId }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="Action" prop="create" align="center" >
+        <template slot-scope="{row}">
+          <el-button type="primary" size="mini" icon="el-icon-plus" @click="handleAddMenu(row)">
+            Add
+          </el-button>
+          <el-button type="primary" size="mini" icon="el-icon-edit" @click="handleEditMenu(row)">
+            Edit
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    
     <menu-edit-dialog ref="menuEditDialog" @close="doneEdit()"/>
   </div>
 </template>
@@ -44,9 +53,7 @@ export default {
       defaultProps: {
         children: 'children',
         label: 'title'
-      },
-      menuObject: {},
-      editButtonVisible: false
+      }
     }
   },
   computed: {
@@ -61,7 +68,6 @@ export default {
   methods: {
     async getRoutes() {
       const res = await getRoutes()
-      console.log(res)
       this.routes = this.generateRoutes(res.data)
     },
     // Reshape the routes structure so that it looks the same as the sidebar
@@ -99,27 +105,23 @@ export default {
       }
       return false
     },
-    handleNodeClick(data) { 
-      this.editButtonVisible = true
-      this.menuObject = data;
-    },
-    handleAddMenu() {
-      var addMenuObject = this.addMenuConvert()
+    handleAddMenu(row) {
+      var addMenuObject = this.addMenuConvert(row)
       this.$refs['menuEditDialog'].open('create', addMenuObject);
     },
-    addMenuConvert() { 
+    addMenuConvert(row) { 
       var data = { menuId: '', url: '/' }
-      if(this.menuObject.menuId === undefined) { 
+      if(row.menuId === undefined) { 
         return data
       }
-      data.menuId = this.menuObject.menuId + '.'
-      data.url = this.menuObject.url + '/'
-      data.menuParentId = this.menuObject.menuId
-      data.depth = this.menuObject.depth +1
+      data.menuId = row.menuId + '.'
+      data.url = row.url + '/'
+      data.menuParentId = row.menuId
+      data.depth = row.depth +1
       return data
     },
-    handleEditMenu() {
-      this.$refs['menuEditDialog'].open('update', this.menuObject);
+    handleEditMenu(row) {
+      this.$refs['menuEditDialog'].open('update', row);
     },
     doneEdit() { 
       this.getRoutes()
