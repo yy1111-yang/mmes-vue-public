@@ -29,6 +29,7 @@ router.beforeEach(async(to, from, next) => {
       // determine whether the user has obtained his permission roles through getInfo
       const hasRoles = store.getters.roles && store.getters.roles.length > 0
       
+      // 현재 내가 가지고 있는 권한을 갱신한다.
       await store.dispatch('permission/generateCurrAuth', to.name)
 
       if (hasRoles) {
@@ -39,12 +40,12 @@ router.beforeEach(async(to, from, next) => {
           // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
           const { roles } = await store.dispatch('user/getInfo')
 
-          // generate accessible routes map based on roles
-          const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
-
           // generate route auth list
           await store.dispatch('permission/generateAuthList')
-
+          
+          // generate accessible routes map based on roles
+          const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
+          
           // dynamically add accessible routes
           router.addRoutes(accessRoutes)
 

@@ -24,6 +24,12 @@ function initCurrMenuAuth() {
   }
 }
 
+function initAsyncRoute() { 
+  console.log(state.routes)
+  var asyncRoute = []
+  return asyncRoute
+}
+
 /**
  * Filter asynchronous routing tables by recursion
  * @param routes asyncRoutes
@@ -41,7 +47,6 @@ export function filterAsyncRoutes(routes, roles) {
       res.push(tmp)
     }
   })
-
   return res
 }
 
@@ -74,6 +79,7 @@ const mutations = {
 const actions = {
   generateRoutes({ commit }, roles) {
     return new Promise(resolve => {
+      var asyncRoutes = initAsyncRoute()
       let accessedRoutes
       if (roles.includes('admin')) {
         accessedRoutes = asyncRoutes || []
