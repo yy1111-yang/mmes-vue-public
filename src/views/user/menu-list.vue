@@ -23,6 +23,9 @@
           <el-button type="primary" size="mini" icon="el-icon-edit" @click="handleEditMenu(row)">
             Edit
           </el-button>
+          <el-button type="danger" size="mini" icon="el-icon-delete" @click="handleDeleteMenu(row)">
+            Delete
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -34,8 +37,7 @@
 <script>
 import path from 'path'
 import { deepClone } from '@/utils'
-import { deleteRole } from '@/api/role'
-import { getRoutes } from '@/api/tmp-menu'
+import { getRoutes, deleteSingleMenu } from '@/api/tmp-menu'
 import menuEditDialog from './dialog/menu-edit-dialog'
 
 const defaultRole = {
@@ -125,6 +127,27 @@ export default {
     },
     doneEdit() { 
       this.getRoutes()
+    },
+    handleDeleteMenu(row) { 
+      if(row.children.length > 0 ) { 
+        this.$alert('하위메뉴가 있어서 삭제가 불가합니다.', 'Warning')
+        return
+      }
+      var menuId = row.menuId
+      this.$confirm('Confirm to remove the menu?', 'Warning', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
+        type: 'warning'
+      })
+      .then(async() => {
+        await deleteSingleMenu(menuId)
+        this.doneEdit()
+        this.$message({
+          type: 'success',
+          message: 'Delete succed!'
+        })
+      })
+      .catch(err => { console.error(err) })
     }
   }
 }

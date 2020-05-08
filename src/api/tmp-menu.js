@@ -23,3 +23,10 @@ export function updateSingleMenu(data) {
   })
 }
 
+export function deleteSingleMenu(menuId) {
+  return request({
+    url: `/api/v1/SysMenu/${menuId}`,
+    method: 'delete'
+  })
+}
+
