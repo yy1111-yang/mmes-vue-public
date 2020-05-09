@@ -1,8 +1,7 @@
 import request from '@/utils/test-request'
-import tmpRequest from '@/utils/res-request'
 
 export function getRoles() {
-  return tmpRequest({
+  return request({
     url: '/api/v1/SysRole/',
     method: 'get'
   })
