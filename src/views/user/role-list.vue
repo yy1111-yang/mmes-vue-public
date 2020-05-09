@@ -74,7 +74,7 @@
             >
             <el-table-column label="메뉴명" prop="date" sortable="custom" align="left" width="310px" >
               <template slot-scope="{row}">
-                <span>{{ row.menuId }}</span>
+                <span>{{ row.menuName }}</span>
               </template>
             </el-table-column>
             <el-table-column label="create" prop="create" align="center" width="80px" >
@@ -205,8 +205,8 @@ export default {
         const data = {
           title: route.treeInfo.name,
           menuId: route.contents.menuId,
+          menuName: route.contents.menuName,
           depth: route.treeInfo.depth,
-          url: route.contents.url,
           authCreate: route.contents.authCreate === "Y" ,
           authRead: route.contents.authRead === "Y",
           authUpdate: route.contents.authUpdate === "Y",

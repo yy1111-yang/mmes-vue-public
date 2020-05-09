@@ -72,7 +72,10 @@ export const constantRoutes = [
     component: () => import('@/views/error-page/401'),
     hidden: true
   },
-  dashboard,
+  dashboard
+]
+
+export const asyncRoutes = [
   userRouter
 ]
 

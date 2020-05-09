@@ -6,35 +6,32 @@ const userRouter = {
   path: '/user',
   component: Layout,
   redirect: '/user/user-list',
-  name: 'User',
-  meta: {
-    title: '사용자/메뉴',
-    icon: 'user'
-  },
+  name: 'user',
   children: [
     {
       path: 'user-list',
       component: () => import('@/views/user/user-list'),
-      name: 'userList',
-      meta: { title: '사용자 관리' }
+      name: 'user.user',
+      meta: { title: '사용자 관리'}
     },
     {
       path: 'menu-list',
       component: () => import('@/views/user/menu-list'),
-      name: 'menuList',
-      meta: { title: '메뉴 관리' }
+      name: 'user.menu',
+      meta: { title: '메뉴 관리'}
+
     },
     {
       path: 'role-list',
       component: () => import('@/views/user/role-list'),
-      name: 'roleList',
-      meta: { title: '역할 관리' }
+      name: 'user.role',
+      meta: { title: '역할 관리'}
     },
     {
       path: 'crud-test',
       component: () => import('@/views/user/crud-test'),
       name: 'crudTest',
-      meta: { title: 'CRUD-TEST' }
+      meta: { title: 'CRUD-TEST'}
     }
   ]
 }

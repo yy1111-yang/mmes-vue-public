@@ -6,13 +6,18 @@
     </div>
     <el-table
       :data="routesData"
-      style="width: 50%; margin-left:10px; margin-bottom: 20px;"
+      style="width: 70%; margin-left:10px; margin-bottom: 20px;"
       row-key="menuId"
       border
       >
-      <el-table-column label="메뉴명" prop="date" sortable="custom" align="left" >
+      <el-table-column label="메뉴ID" prop="date" sortable="custom" align="left" >
         <template slot-scope="{row}">
           <span>{{ row.menuId }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="메뉴명" prop="date" sortable="custom" align="left" >
+        <template slot-scope="{row}">
+          <span>{{ row.menuName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Action" prop="create" align="center" >
@@ -84,10 +89,9 @@ export default {
         const data = {
           title: route.treeInfo.name,
           menuId: route.contents.menuId,
-          url: route.contents.url,
           menuParentId: route.contents.menuParentId,
           depth: route.contents.depth,
-          messageDefault: route.treeInfo.name
+          menuName: route.treeInfo.name
         }
         // recursive child routes
         if (route.children) {
@@ -112,12 +116,11 @@ export default {
       this.$refs['menuEditDialog'].open('create', addMenuObject);
     },
     addMenuConvert(row) { 
-      var data = { menuId: '', url: '/' }
+      var data = { menuId: ''}
       if(row.menuId === undefined) { 
         return data
       }
       data.menuId = row.menuId + '.'
-      data.url = row.url + '/'
       data.menuParentId = row.menuId
       data.depth = row.depth +1
       return data

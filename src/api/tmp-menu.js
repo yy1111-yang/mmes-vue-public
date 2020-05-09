@@ -29,4 +29,3 @@ export function deleteSingleMenu(menuId) {
     method: 'delete'
   })
 }
-

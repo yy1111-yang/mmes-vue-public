@@ -7,11 +7,23 @@ import { getAuthList } from '@/api/tmp-auth'
  * @param route
  */
 function hasPermission(roles, route) {
-  if (route.meta && route.meta.roles) {
-    return roles.some(role => route.meta.roles.includes(role))
-  } else {
-    return true
+  for(var i=0; i<state.authList.length; i++) { 
+    if(route.name === state.authList[i].menuId) { 
+      return state.authList[i].authRead === 'Y'
+    }
   }
+}
+
+function changeValue(tmp) { 
+  for(var i=0; i<state.authList.length; i++) { 
+    if(tmp.name === state.authList[i].menuId) { 
+      tmp.meta = { 
+        title: state.authList[i].menuName,
+        icon: state.authList[i].icon
+      }
+    }
+  }
+  return tmp
 }
 
 function initCurrMenuAuth() { 
@@ -24,12 +36,6 @@ function initCurrMenuAuth() {
   }
 }
 
-function initAsyncRoute() { 
-  console.log(state.routes)
-  var asyncRoute = []
-  return asyncRoute
-}
-
 /**
  * Filter asynchronous routing tables by recursion
  * @param routes asyncRoutes
@@ -39,7 +45,8 @@ export function filterAsyncRoutes(routes, roles) {
   const res = []
 
   routes.forEach(route => {
-    const tmp = { ...route }
+    var tmp = { ...route }
+    tmp = changeValue(tmp)
     if (hasPermission(roles, tmp)) {
       if (tmp.children) {
         tmp.children = filterAsyncRoutes(tmp.children, roles)
@@ -79,13 +86,8 @@ const mutations = {
 const actions = {
   generateRoutes({ commit }, roles) {
     return new Promise(resolve => {
-      var asyncRoutes = initAsyncRoute()
       let accessedRoutes
-      if (roles.includes('admin')) {
-        accessedRoutes = asyncRoutes || []
-      } else {
-        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
-      }
+      accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })
@@ -94,8 +96,7 @@ const actions = {
     return new Promise(resolve => {
       var roleId = 'admin'
       getAuthList(roleId).then((response) => { 
-        var list = response.data.items
-        commit('SET_AUTH', list)
+        commit('SET_AUTH', response.data.items)
         resolve()
       })
     })

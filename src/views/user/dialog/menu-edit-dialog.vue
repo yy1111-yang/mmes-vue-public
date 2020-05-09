@@ -7,11 +7,8 @@
       <el-form-item label="Menu Id" prop="menuId">
         <el-input v-model="tempMenu.menuId" />
       </el-form-item>
-      <el-form-item label="Menu Name" prop="messageDefault">
-        <el-input v-model="tempMenu.messageDefault" />
-      </el-form-item>
-      <el-form-item label="URI" prop="url">
-        <el-input v-model="tempMenu.url"  />
+      <el-form-item label="Menu Name" prop="menuName">
+        <el-input v-model="tempMenu.menuName" />
       </el-form-item>
       <el-form-item style="text-align:right">
         <el-button icon="el-icon-close" @click="close()">
@@ -38,15 +35,13 @@ export default {
       tempMenu: { 
         menuParentId: '',
         menuId: '',
-        messageDefault: '',
-        url: '',
+        menuName: '',
         depth: '',
         seq: ''
       },
       rules: {
         menuId: [{ required: true, message: 'Menu ID is required', trigger: 'change' }],
-        messageDefault: [{ required: true, message: 'Menu Name is required', trigger: 'change' }],
-        url: [{ required: true, message: 'url is required', trigger: 'blur' }],
+        menuName: [{ required: true, message: 'Menu Name is required', trigger: 'change' }],
       }
     }
   },
@@ -72,7 +67,6 @@ export default {
           this.tempMenu.messageGroup = 'test'
           this.tempMenu.messageCode = 'test'
           this.tempMenu.useYn = 'Y'
-          this.tempMenu.displayYn = 'Y'
           createSingleMenu(this.tempMenu).then(() => {
             this.$emit('close')
             this.$notify({
