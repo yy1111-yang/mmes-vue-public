@@ -58,7 +58,7 @@ export default {
     },
     async getUserListByRole(roleId) {
       const res = await getUserList(this.listQuery)
-      var rtnList = res.data.items
+      var rtnList = res.data
       for(var i=0; i<rtnList.length; i++) { 
         rtnList[i].label = rtnList[i].userId
         rtnList[i].key = rtnList[i].userId

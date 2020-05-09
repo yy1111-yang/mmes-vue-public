@@ -54,14 +54,14 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.offset" :limit.sync="listQuery.limit" @pagination="getList" />
 
     <user-edit-dialog ref="userEditDialog" @close="getList"/>
   </div>
 </template>
 
 <script>
-import { getUserList, deleteUser } from '@/api/tmp-user'
+import { getUserList, getUserPage, deleteUser } from '@/api/tmp-user'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import userEditDialog from './dialog/user-edit-dialog'
@@ -86,8 +86,8 @@ export default {
       total: 0,
       listLoading: true,
       listQuery: {
-        page: 1,
-        limit: 20,
+        offset: 0,
+        pageSize: 1,
         userName: undefined,
         email: undefined,
         statusId: undefined,
@@ -103,9 +103,9 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      getUserList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+      getUserPage(this.listQuery).then(response => {
+        this.list = response.data.content
+        this.total = response.data.totalElements
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false
@@ -113,7 +113,7 @@ export default {
       })
     },
     handleFilter() {
-      this.listQuery.page = 1
+      this.listQuery.offset = 0
       this.getList()
     },
     handleCreate() {

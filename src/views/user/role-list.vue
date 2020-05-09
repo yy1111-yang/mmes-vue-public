@@ -148,7 +148,7 @@ export default {
   methods: {
     async getRoles() {
       const res = await getRoles()
-      this.rolesList = res.data.items
+      this.rolesList = res.data
     },
     handleAddRole() {
       this.$refs['roleEditDialog'].open('create', {});
@@ -181,7 +181,7 @@ export default {
     async getUserListByRole(roleId) { 
       this.roleId = roleId
       const res = await getUserByRole(this.roleId)
-      this.roleUserList = res.data.items
+      this.roleUserList = res.data
     },
     handleAddUserByRole() { 
       this.$refs['userListTransfer'].open(this.roleId)

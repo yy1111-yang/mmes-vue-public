@@ -96,7 +96,7 @@ const actions = {
     return new Promise(resolve => {
       var roleId = 'admin'
       getAuthList(roleId).then((response) => { 
-        commit('SET_AUTH', response.data.items)
+        commit('SET_AUTH', response.data)
         resolve()
       })
     })

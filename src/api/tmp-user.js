@@ -1,4 +1,5 @@
 import Request from '@/utils/test-request'
+import tmpRequest from '@/utils/res-request'
 
 export function getUserList(query) {
   return Request({
@@ -7,6 +8,15 @@ export function getUserList(query) {
     params: query
   })
 }
+
+export function getUserPage(query) {
+  return tmpRequest({
+    url: `/api/v1/SysUser/page`,
+    method: 'get',
+    params: query
+  })
+}
+
 
 export function userDetail(userId) {
   return Request({
