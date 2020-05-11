@@ -54,7 +54,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.offset" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getList" />
 
     <user-edit-dialog ref="userEditDialog" @close="getList"/>
   </div>
@@ -86,8 +86,8 @@ export default {
       total: 0,
       listLoading: true,
       listQuery: {
-        offset: 0,
-        pageSize: 1,
+        page: 1,
+        size: 10,
         userName: undefined,
         email: undefined,
         statusId: undefined,
@@ -103,7 +103,14 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      getUserPage(this.listQuery).then(response => {
+      var tmp = {}
+      tmp.page = this.listQuery.page -1
+      tmp.size = this.listQuery.size
+      tmp.userName = this.listQuery.userName
+      tmp.email = this.listQuery.email
+      tmp.statusId = this.listQuery.statusId
+      tmp.sort = this.listQuery.sort
+      getUserPage(tmp).then(response => {
         this.list = response.data.content
         this.total = response.data.totalElements
         // Just to simulate the time of the request
@@ -113,7 +120,6 @@ export default {
       })
     },
     handleFilter() {
-      this.listQuery.offset = 0
       this.getList()
     },
     handleCreate() {
