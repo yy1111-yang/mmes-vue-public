@@ -55,7 +55,7 @@ export function checkDuplicated(userId) {
 }
 
 export function login(data) {
-  return request({
+  return Request({
     url: '/api/v1/SysUser/login',
     method: 'post',
     data
@@ -63,8 +63,8 @@ export function login(data) {
 }
 
 export function getInfo(token) {
-  return request({
-    url: '/api/v1/SysUser/info',
+  return Request({
+    url: '/api/v1/SysUser/getInfoByToken',
     method: 'get',
     params: { token }
   })

@@ -75,14 +75,15 @@ export default {
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+        // callback(new Error('Please enter the correct user name'))
+        callback()
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
+      if (value.length < 3) {
+        callback(new Error('The password can not be less than 3 digits'))
       } else {
         callback()
       }
@@ -139,6 +140,24 @@ export default {
       })
     },
     handleLogin() {
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          this.loading = true
+          this.$store.dispatch('user/login', this.loginForm)
+            .then(() => {
+              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+              this.loading = false
+            })
+            .catch(() => {
+              this.loading = false
+            })
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    },
+    handleLogin2() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
