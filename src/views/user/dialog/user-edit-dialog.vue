@@ -34,7 +34,7 @@
 </template>
 <script>
 
-import { createUser, updateUser, checkDuplicated } from '@/api/tmp-user'
+import { createUser, updateUser, checkDuplicated } from '@/api/user'
 import { validEmail } from '@/utils/validate'
 
 export default {

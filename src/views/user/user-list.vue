@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import { getUserList, getUserPage, deleteUser } from '@/api/tmp-user'
+import { getUserList, getUserPage, deleteUser } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import userEditDialog from './dialog/user-edit-dialog'

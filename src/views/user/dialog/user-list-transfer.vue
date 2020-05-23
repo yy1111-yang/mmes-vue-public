@@ -20,7 +20,7 @@
 
 <script>
 import { addUserByRole, getUserByRole } from '@/api/role'
-import { getUserList } from '@/api/tmp-user'
+import { getUserList } from '@/api/user'
 export default {
   name: 'userListTransfer',
   data() {
