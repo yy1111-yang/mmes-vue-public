@@ -116,7 +116,7 @@ import roleEditDialog from './dialog/role-edit-dialog'
 import path from 'path'
 import { deepClone } from '@/utils'
 import { getRoutes } from '@/api/tmp-menu'
-import { addAuth, getAuthList } from '@/api/tmp-auth'
+import { addAuth, getAuthList } from '@/api/auth'
 
 export default {
   name: 'roleList',

@@ -1,5 +1,5 @@
 import { asyncRoutes, constantRoutes } from '@/router'
-import { getAuthList } from '@/api/tmp-auth'
+import { getAuthList } from '@/api/auth'
 
 /**
  * Use meta.role to determine if the current user has permission
