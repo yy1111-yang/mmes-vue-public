@@ -42,7 +42,7 @@
 <script>
 import path from 'path'
 import { deepClone } from '@/utils'
-import { getRoutes, deleteSingleMenu } from '@/api/tmp-menu'
+import { getRoutes, deleteSingleMenu } from '@/api/menu'
 import menuEditDialog from './dialog/menu-edit-dialog'
 
 const defaultRole = {

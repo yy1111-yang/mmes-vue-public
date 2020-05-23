@@ -23,7 +23,7 @@
 </template>
 <script>
 
-import { createSingleMenu, updateSingleMenu } from '@/api/tmp-menu'
+import { createSingleMenu, updateSingleMenu } from '@/api/menu'
 
 export default {
   name: 'userEditDialog',

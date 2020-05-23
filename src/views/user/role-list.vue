@@ -115,7 +115,7 @@ import userListTransfer from './dialog/user-list-transfer'
 import roleEditDialog from './dialog/role-edit-dialog'
 import path from 'path'
 import { deepClone } from '@/utils'
-import { getRoutes } from '@/api/tmp-menu'
+import { getRoutes } from '@/api/menu'
 import { addAuth, getAuthList } from '@/api/auth'
 
 export default {
