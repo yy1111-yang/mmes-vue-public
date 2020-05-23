@@ -1,4 +1,4 @@
-import request from '@/utils/test-request'
+import request from '@/utils/request'
 
 export function getRoles() {
   return request({

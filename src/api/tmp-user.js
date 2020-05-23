@@ -1,4 +1,4 @@
-import Request from '@/utils/test-request'
+import Request from '@/utils/request'
 
 export function getUserList(query) {
   return Request({
