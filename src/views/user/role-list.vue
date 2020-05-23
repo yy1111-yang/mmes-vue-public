@@ -110,7 +110,7 @@
 </template>
 <script>
 
-import { getRoles, deleteRole, getUserByRole } from '@/api/tmp-role'
+import { getRoles, deleteRole, getUserByRole } from '@/api/role'
 import userListTransfer from './dialog/user-list-transfer'
 import roleEditDialog from './dialog/role-edit-dialog'
 import path from 'path'

@@ -21,7 +21,7 @@
 </template>
 <script>
 
-import { addRole, updateRole } from '@/api/tmp-role'
+import { addRole, updateRole } from '@/api/role'
 
 const defaultRole = {
   roleId: '',
