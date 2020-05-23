@@ -67,7 +67,8 @@ export default {
 
       // 현재 선택된 애들을 체크해줘야함
       const res2 = await getUserByRole(roleId)
-      var rtnList = res2.data.items
+      var rtnList = res2.data
+      console.log(rtnList)
       for(var i=0; i<rtnList.length; i++) { 
         this.selectRoleUserList.push(rtnList[i].userId)
       }
