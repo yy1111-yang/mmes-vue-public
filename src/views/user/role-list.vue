@@ -191,7 +191,7 @@ export default {
       this.getUserListByRole(this.roleId)
     },
     async getRoutes(row) {
-      const res = await getRoutes()
+      const res = await getRoutes(row.roleId)
       this.routes = this.generateRoutes(res.data)
     },
     generateRoutes(routes, basePath = '/') {
