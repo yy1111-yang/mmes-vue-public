@@ -116,7 +116,7 @@ export default {
       this.$refs['menuEditDialog'].open('create', addMenuObject);
     },
     addMenuConvert(row) { 
-      var data = { menuId: ''}
+      var data = { menuId: '', depth: 1}
       if(row.menuId === undefined) { 
         return data
       }

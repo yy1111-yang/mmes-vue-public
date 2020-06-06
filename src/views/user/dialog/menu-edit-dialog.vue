@@ -10,6 +10,12 @@
       <el-form-item label="Menu Name" prop="menuName">
         <el-input v-model="tempMenu.menuName" />
       </el-form-item>
+      <el-form-item label="depth" prop="depth" v-show="false">
+        <el-input v-model="tempMenu.depth" />
+      </el-form-item>
+      <el-form-item label="Menu seq" prop="seq" v-show="false">
+        <el-input v-model="tempMenu.seq" />
+      </el-form-item>
       <el-form-item style="text-align:right">
         <el-button icon="el-icon-close" @click="close()">
           Cancel
@@ -64,8 +70,6 @@ export default {
     createMenu() { 
       this.$refs['paramDataForm'].validate((valid) => {
         if (valid) {
-          this.tempMenu.messageGroup = 'test'
-          this.tempMenu.messageCode = 'test'
           this.tempMenu.useYn = 'Y'
           createSingleMenu(this.tempMenu).then(() => {
             this.$emit('close')
